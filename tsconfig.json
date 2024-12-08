@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    /* Modules */
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "declarationDir": "./cjs/types",
+    "emitDeclarationOnly": true /* Emit only declaration files. */,
+    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+    "declaration": true,
+    // "moduleResolution": "Node" /* Determine how modules get resolved. */,
+    // "module": "ESNext" /* Specify what module code is generated. */,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "module": "node16",
+    "moduleResolution": "node16",
+    /* Type Checking */
+    "allowImportingTsExtensions": true,
+    "noUncheckedIndexedAccess": true /* Add 'undefined' to a type when accessed using an index. */,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+    "allowJs": true,
+    "jsx": "react",
+    "strict": true /* Enable all strict type-checking options. */,
+    "baseUrl": ".",
+    "paths": {
+      "@state": ["./src/classes/ThothDOM/state.ts"],
+      "@features": ["./src/strapiAdapter"],
+      "@classes/*": ["./src/classes/*"],
+      "@classes": ["./src/classes/index.ts"],
+      "@types": ["./src/@types/index.ts"],
+      "@types*": ["./src/@types*"],
+      "@utils": ["./src/utils/index.ts"],
+      "@utils*": ["./src/utils*"]
+    }
+  },
+  "exclude": ["rollup.config.js", "node_modules/*", "cjs", "esm"],
+  "include": [
+    "node_modules/@iliad.dev/ts-utils/@globals",
+    "src/@types/**/*",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*"
+  ]
+}

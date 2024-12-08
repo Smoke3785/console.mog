@@ -1,0 +1,12 @@
+node_modules
+
+# Monorepo
+.turbo
+
+# Output Directories
+esm
+cjs
+
+temp.md
+
+debug
