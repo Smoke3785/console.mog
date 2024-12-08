@@ -2,7 +2,7 @@
 import "@iliad.dev/ts-utils/@types";
 
 // Import public utils
-import { MogContext } from "./classes/MogContext/index.ts";
+import { MogContext } from "./classes/core/MogContext/index.ts";
 import { mog } from "./utils/index.ts";
 
 // Export stuff

@@ -1,5 +1,5 @@
-import { Log } from "@classes/Log/index.ts";
-import { DOM } from "@classes/DOM/class.ts";
+import { Log } from "@classes/core/Log/index.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
 
 export default class LogStore extends Array<Log> {
   owner: Log | DOM;

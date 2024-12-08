@@ -8,9 +8,9 @@ import type {
 } from "./types.ts";
 
 // Classes
-import { LogData } from "@classes/LogData/class.ts";
-import { DOM } from "@classes/DOM/class.ts";
-import LogStore from "@classes/LogStore.ts";
+import { LogData } from "@classes/core/LogData/class.ts";
+import LogStore from "@classes/utilities/LogStore.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
 
 // Utils
 import { createChildLog, createChildOptions } from "./utils.ts";
@@ -45,7 +45,7 @@ export class Log {
 
   logData: LogData;
 
-  constructor(options: LogParams, arguments_: any[], arbitraryIndex?: number) {
+  constructor(options: LogParams, arguments_: any[]) {
     this.parent = options.parent;
     this.arguments_ = arguments_;
     this.root = this.parent.root;
@@ -160,12 +160,12 @@ export class Log {
 
   protected createSibling<T extends VariantName>(
     options: CreateChildOptions<T>,
-    arguments_: any[] | string = "",
+    arguments_: any[] | string = ""
   ): LogVariantRegistry[T] {
     if (this.parent instanceof DOM) {
       return this.parent.createChild(
         options,
-        arguments_,
+        arguments_
       ) as LogVariantRegistry[T];
     }
     return this.parent.createChild(options, arguments_);
@@ -210,7 +210,7 @@ export class Log {
 
   protected createChild<T extends VariantName>(
     options: CreateChildOptions<T>,
-    arguments_: any[] | string = "",
+    arguments_: any[] | string = ""
   ): LogVariantRegistry[T] {
     const child = createChildLog(this, options, arguments_);
     this.addChild(child);
@@ -256,15 +256,15 @@ export class Log {
 
 export class MogLog extends Log {
   constructor(options: LogParams, arguments_: any[], arbitraryIndex?: number) {
-    super(options, arguments_, arbitraryIndex);
+    super(options, arguments_);
   }
 }
 
 export class RawLog extends MogLog {
   parent: DOM;
 
-  constructor(options: LogParams, arguments_: any[], arbitraryIndex?: number) {
-    super(options, arguments_, arbitraryIndex);
+  constructor(options: LogParams, arguments_: any[]) {
+    super(options, arguments_);
     this.parent = options.parent.root;
   }
 
@@ -278,8 +278,8 @@ export class RawLog extends MogLog {
 }
 
 export class PowerLog extends MogLog {
-  constructor(options: LogParams, arguments_: any[], arbitraryIndex?: number) {
-    super(options, arguments_, arbitraryIndex);
+  constructor(options: LogParams, arguments_: any[]) {
+    super(options, arguments_);
   }
 
   advanceFrame() {

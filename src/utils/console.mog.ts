@@ -1,5 +1,5 @@
-import type { MogContextConfigObject } from "../classes/MogContext/index.ts";
-import { MogContext } from "../classes/MogContext/index.ts";
+import type { MogContextConfigObject } from "../classes/core/MogContext/index.ts";
+import { MogContext } from "../classes/core/MogContext/index.ts";
 
 function getGlobal() {
   if (typeof window !== "undefined") {
@@ -34,7 +34,7 @@ declare global {
 // Scoped type guard function
 export function mog<T extends MogContext = MogContext>(
   console: Console,
-  options?: MogContextConfigObject,
+  options?: MogContextConfigObject
   // @ts-ignore
 ): asserts console is T {
   const mogContext = new MogContext(options, console); // Replace global console;

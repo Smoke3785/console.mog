@@ -2,10 +2,10 @@
 // import type { FinalLogConfig, LoggerConfig } from "@classes/ThothLog/types.ts";
 // import type { ThothParams, ModuleParam } from "./types.ts";
 
-import { MogContextInput } from "@classes/Configuration/types.ts";
-import { Configuration } from "@classes/Configuration/index.ts";
-import { MogLog } from "@classes/Log/index.ts";
-import { DOM } from "@classes/DOM/class.ts";
+import { MogContextInput } from "@classes/configuration/Configuration/types.ts";
+import { Configuration } from "@classes/configuration/Configuration/index.ts";
+import { MogLog } from "@classes/core/Log/index.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
 
 // // Data
 // import {
@@ -177,7 +177,7 @@ export class MogContext {
 
   constructor(
     thothConfigObject: MogContextConfigObject = {},
-    originalConsole: Console,
+    originalConsole: Console
   ) {
     this.configuration = new Configuration(thothConfigObject);
     this.originalConsole = originalConsole;

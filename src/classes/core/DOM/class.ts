@@ -3,14 +3,14 @@ import type {
   CreateChildOptions,
   VariantName,
   LogParams,
-} from "@classes/Log/types.ts";
+} from "@classes/core/Log/types.ts";
 
 // Classes
-import { SpinnerManager } from "@classes/SpinnerManager/index.ts";
-import { PowerLog, MogLog, Log } from "@classes/Log/index.ts";
-import { LogData } from "@classes/LogData/class.ts";
-import AverageArray from "@classes/AverageArray.ts";
-import LogStore from "@classes/LogStore.ts";
+import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
+import { PowerLog, MogLog, Log } from "@classes/core/Log/index.ts";
+import { LogData } from "@classes/core/LogData/class.ts";
+import AverageArray from "@classes/utilities/AverageArray.ts";
+import LogStore from "@classes/utilities/LogStore.ts";
 
 // Data
 import { domConfig } from "./data.ts";
@@ -19,8 +19,8 @@ import { domConfig } from "./data.ts";
 import * as log from "./logging.ts";
 
 // Utils
-import { createChildLog, createChildOptions } from "@classes/Log/utils.ts";
-import { Configuration } from "@classes/Configuration/index.ts";
+import { createChildLog, createChildOptions } from "@classes/core/Log/utils.ts";
+import { Configuration } from "@classes/configuration/Configuration/index.ts";
 import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
 
@@ -264,7 +264,7 @@ export class DOM {
       dataToRender.length,
       tHeight,
       eTotalLinesConsumed,
-      totalLinesConsumed,
+      totalLinesConsumed
     );
 
     // Re-try render until all data is rendered
@@ -274,7 +274,7 @@ export class DOM {
       if (renderAttempts > 100) {
         this.unmount();
         return this.throwAndUnmount(
-          `Recursive render occurred more than 100 times. Exiting.`,
+          `Recursive render occurred more than 100 times. Exiting.`
         );
       }
 
@@ -483,7 +483,7 @@ export class DOM {
 
   public createChild<T extends VariantName>(
     options: CreateChildOptions<T>,
-    arguments_: any[] | string = "",
+    arguments_: any[] | string = ""
   ) {
     const child = createChildLog(this, options, arguments_);
     this.addChild(child);
