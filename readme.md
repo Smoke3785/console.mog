@@ -1,7 +1,7 @@
 # 💅🏻 console.mog 🤫🧏
 
 
-## Critical for alpha
+## Critical for alpha 🐺
 - Graceful failure. Currently crash reports are printed overtop of the console... can we wrap them to handle graceful failures?
 - Make sure `console.mog` has parity with console.log - may need to just proxy stuff like chart to underlying functionality.
 - Integrate my timestamp syntax to mirror native `console` implementation.
