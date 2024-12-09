@@ -1,6 +1,6 @@
 {
   "name": "console.mog",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Looksmax your console 🤫🧏",
   "repository": {
     "type": "git",
@@ -45,7 +45,8 @@
     }
   },
   "files": [
-    "ejs",
+    "readme.md",
+    "cjs",
     "esm"
   ],
   "scripts": {

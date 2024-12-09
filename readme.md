@@ -10,9 +10,9 @@
 
 
 
-![Iliad Badge][iliad-img] 
-![NPM Version][npm-image]
-![NPM Downloads][downloads-image]
+[![Iliad Badge][iliad-img]][iliad-url]
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
 
 Welcome to **console.mog**, a transformative tool designed to take our beloved `console` from mundane to magnificent. This library gives you the ability to create gorgeous terminal readouts without adopting the technical overhead that comes with a dedicated CLI-builder.
 
