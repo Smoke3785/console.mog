@@ -1,6 +1,15 @@
+
+
+
+
+
 # 💅🏻 console.mog 🤫🧏
 
 Looksmax your console. This is a powerful tool for building attractive logs that closely represent your data. It has a simple, declarative API and minimal dependencies.
+
+[![Iliad Badge][iliad-img]][iliad-url]
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
 
 > [!IMPORTANT]  
 This is in alpha (💪🐺), if that. This library is not ready for general use and won't be for a few weeks.
@@ -59,3 +68,24 @@ Stuff I gotta do before shilling on reddit. 🤨😗
 
 ### Code cleanup
 - I need to simplify the Log types and how they actually resolve their data. LogData should be generic.
+
+
+<!-- Variables -->
+[npm-image]: https://img.shields.io/npm/v/typescript-multiclass.svg
+[npm-url]: https://npmjs.org/package/typescript-multiclass
+[travis-image]: https://img.shields.io/travis/panates/typescript-multiclass/master.svg
+[travis-url]: https://travis-ci.org/panates/typescript-multiclass
+[coveralls-image]: https://img.shields.io/coveralls/panates/typescript-multiclass/master.svg
+[coveralls-url]: https://coveralls.io/r/panates/typescript-multiclass
+[downloads-image]: https://img.shields.io/npm/dm/typescript-multiclass.svg
+[downloads-url]: https://npmjs.org/package/typescript-multiclass
+[gitter-image]: https://badges.gitter.im/panates/typescript-multiclass.svg
+[gitter-url]: https://gitter.im/panates/typescript-multiclass?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[dependencies-image]: https://david-dm.org/panates/typescript-multiclass/status.svg
+[dependencies-url]:https://david-dm.org/panates/typescript-multiclass
+[devdependencies-image]: https://david-dm.org/panates/typescript-multiclass/dev-status.svg
+[devdependencies-url]:https://david-dm.org/panates/typescript-multiclass?type=dev
+[quality-image]: http://npm.packagequality.com/shield/typescript-multiclass.png
+[quality-url]: http://packagequality.com/#?package=typescript-multiclass
+[iliad-img]: https://img.shields.io/badge/%E2%97%AD%20%20-Iliad.dev-00ace0?labelColor=04151f&cacheSeconds=https%3A%2F%2Filiad.dev%2F%3Ffrom%3Dgithub-badge
+[iliad-url]: https://iliad.dev/?from=github-badge
