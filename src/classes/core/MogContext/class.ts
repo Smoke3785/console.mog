@@ -1,6 +1,6 @@
 import { MogContextInput } from "@classes/configuration/Configuration/types.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
-import { MogLog, PowerLog } from "@classes/core/Log/index.ts";
+import { MogLog, PowerLog, TableLog } from "@classes/core/Log/index.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
 
 export type MogContextConfigObject = MogContextInput & {};
@@ -8,8 +8,8 @@ export class MogContext implements Console {
   public prototype: MogContext = this;
   public Console = console.Console;
 
-  private originalConsole: Console;
   private configuration: Configuration;
+  private originalConsole: Console;
   private DOM: DOM;
 
   constructor(
@@ -154,20 +154,45 @@ export class MogContext implements Console {
     this.originalConsole.dirxml(...data);
   }
 
-  group(...label: any[]): void {
-    this.originalConsole.group(...label);
+  // =================================================
+  // Groups seem like an uglier version of console._log(). Can I just use that?
+  // ===============-----------
+  group(label?: string): MogLog {
+    return this.DOM.group(label);
   }
 
-  groupCollapsed(...label: any[]): void {
-    this.originalConsole.groupCollapsed(...label);
+  groupCollapsed(label?: string): MogLog {
+    return this.DOM.group(label);
   }
 
-  groupEnd(): void {
-    this.originalConsole.groupEnd();
+  groupEnd(): MogContext {
+    return this;
   }
 
-  table(tabularData?: any, properties?: string[]): void {
-    this.originalConsole.table(tabularData, properties);
+  // =================================================
+  // Table methods
+  // ===============-----------
+
+  // arrayTable(
+  //   headers: string[],
+  //   tabularData: any[],
+  //   styles: any = {}
+  // ): TableLog {
+  //   return this.DOM.table({
+  //     headers: headers,
+  //     data: tabularData,
+  //     styles: styles,
+  //     type: "array",
+  //   });
+  // }
+
+  table(tabularData?: any, styles: any = {}): TableLog {
+    return this.DOM.table({
+      headers: undefined,
+      data: tabularData,
+      type: "unknown",
+      styles: styles,
+    });
   }
 
   time(label?: string): void {

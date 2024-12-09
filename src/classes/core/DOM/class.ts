@@ -1,4 +1,5 @@
 // Types
+import type { TableDataInput } from "@classes/core/LogData/types.ts";
 import type {
   CreateChildOptions,
   VariantName,
@@ -9,10 +10,11 @@ import type {
 // Classes
 import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
 import {
+  HorizontalRule,
+  TableLog,
   PowerLog,
   MogLog,
   Log,
-  HorizontalRule,
 } from "@classes/core/Log/index.ts";
 import AverageArray from "@classes/utilities/AverageArray.ts";
 import { LogData } from "@classes/core/LogData/class.ts";
@@ -29,6 +31,7 @@ import { createChildLog, createChildOptions } from "@classes/core/Log/utils.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
 import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
+import * as utils from "@utils";
 import * as $R from "remeda";
 
 // ===========================================================================
@@ -62,6 +65,7 @@ export class DOM {
   // DOM State
   private isCursorHidden: boolean = false;
   public children: Array<MogLog> = [];
+  private groupStack: MogLog[] = [];
 
   // Render State - Flags
   private fullRenderRequested: boolean = false;
@@ -420,11 +424,13 @@ export class DOM {
 
       if (stream === "stdout") {
         logger("debug", data);
+        this.log("debug", data);
         log.log(data);
       }
 
       if (stream === "stderr") {
         logger("error", data);
+        this.log("error", data);
         log.log(data);
       }
     });
@@ -537,23 +543,15 @@ export class DOM {
     return this.addChild(log);
   }
 
-  public log(level: LogType = "log", ...args: any[]) {
-    const options = createChildOptions("mogLog", {
-      parent: this,
-      type: level,
-    });
-
-    const log = createChildLog(this, options, args);
-    return this.addChild(log);
-  }
-
-  public _log(level: LogType = "log", ...args: any[]) {
-    return this.log(level, ...args);
-  }
-
   public clear() {
+    this.groupStack = [];
     this.children = [];
+
     this.informOfUpdate(true);
+  }
+
+  private getRootOrGroup(): MogLog | DOM {
+    return $R.last(this.groupStack) || this;
   }
 
   // Important note: Currently this won't do anything for nested logs.
@@ -571,14 +569,63 @@ export class DOM {
     return this.addChild(hrLog);
   }
 
+  public table(tableDataInput: TableDataInput) {
+    const tableLog = new TableLog({ parent: this }, tableDataInput);
+    return this.addChild(tableLog);
+  }
+
+  public group(label: string = "") {
+    const groupLabel = this.log("log", label);
+    this.groupStack.push(groupLabel);
+
+    return groupLabel;
+  }
+
+  public groupEnd(): void {
+    this.groupStack.pop();
+    return;
+  }
+
   public $log(level: LogType = "log", message: string = ""): PowerLog {
+    const parent = this.getRootOrGroup();
+
+    handleGrouping: {
+      if (level === "table") break handleGrouping;
+      if (parent instanceof MogLog) {
+        return parent[`_$${level}`](message);
+      }
+    }
     const options = createChildOptions("powerLog", {
-      parent: this,
+      parent: this.getRootOrGroup(),
       type: "log",
     });
 
     const log = createChildLog(this, options, message);
     return this.addChild(log);
+  }
+
+  public log(level: LogType = "log", ...args: any[]) {
+    const parent = this.getRootOrGroup();
+
+    handleGrouping: {
+      if (level === "table") break handleGrouping;
+
+      if (parent instanceof MogLog) {
+        return parent[`_${level}`](...args);
+      }
+    }
+
+    const options = createChildOptions("mogLog", {
+      type: level,
+      parent,
+    });
+
+    const log = createChildLog(this, options, args);
+    return this.addChild(log);
+  }
+
+  public _log(level: LogType = "log", ...args: any[]) {
+    return this.log(level, ...args);
   }
 
   public _$log(level: LogType = "log", message: string = "") {

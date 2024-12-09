@@ -1,15 +1,17 @@
 // Types
-import type { LogDataInput } from "./types.ts";
+import type { LogDataInput, OrganizedTableData } from "./types.ts";
 
 // Classes
 import { DOM } from "@classes/core/DOM/class.ts";
-import { Log } from "@classes/core/Log/index.ts";
+import { Log, TableLog } from "@classes/core/Log/index.ts";
 import { memoizeDecorator } from "memoize";
 
 // Utils
 import wrapAnsi from "wrap-ansi";
+import Table from "cli-table";
 import util from "util";
 
+import { normalizeTableData } from "./utils.ts";
 import * as utils from "@utils";
 
 // Data
@@ -66,16 +68,6 @@ export class LogData {
     return components.filter((c) => c).join(joinString);
   }
 
-  private getTypeString(type: LogDataInput["type"]): string {
-    return {
-      info: "INF",
-      log: "LOG",
-      warn: "WRN",
-      error: "ERR",
-      debug: "DBG",
-    }[type];
-  }
-
   private getPrefixValues(): string[] {
     return this.root.config.prefixes.map((prefix) => {
       return prefix.getValue(this);
@@ -89,6 +81,23 @@ export class LogData {
   }
 
   @memoizeDecorator()
+  private tableToString(dataKey: number): string {
+    const { tableData } = this.log as TableLog;
+    const data: OrganizedTableData = normalizeTableData(tableData);
+
+    const table = new Table({
+      style: { head: ["reset"] },
+      head: data.headers,
+      colors: false,
+      // style: data.styles,
+    });
+
+    table.push(...data.data);
+
+    return table.toString();
+  }
+
+  @memoizeDecorator()
   private memoizedToString(dataKey: number): string {
     const prefixComponents: Array<string | undefined | null> = [];
     const dataComponents: Array<string | undefined | null> = [];
@@ -99,13 +108,18 @@ export class LogData {
     const spacing = " ".repeat(prefixMarginRight);
 
     // Destructure data
-    const { treePrefix, data, raw } = this.data;
+    const { treePrefix, data, type, raw } = this.data;
     const isEmpty = data.trim() === "";
 
     if (raw) {
       // These are logs intercepted from the console
       const line = this.joinData(data);
       return util.format(line);
+    }
+
+    if (type == "table") {
+      process.stdout.write(util.format(data + "te"));
+      return this.tableToString(dataKey);
     }
 
     // If the log is empty and the config says not to apply prefixes to empty logs, return an empty string

@@ -60,10 +60,12 @@
     "test-": "node test/index.ts"
   },
   "dependencies": {
-    "memoize": "github:Smoke3785/memoize#installable",
     "@preact/signals-core": "^1.8.0",
+    "@types/cli-table": "^0.3.4",
     "chalk": "^5.3.0",
+    "cli-table": "^0.3.11",
     "deepmerge": "^4.3.1",
+    "memoize": "github:Smoke3785/memoize#installable",
     "patch-console": "^2.0.0",
     "remeda": "^2.17.4",
     "rimraf": "^6.0.1",

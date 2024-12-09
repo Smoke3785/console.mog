@@ -11,7 +11,7 @@ export type VariantName = keyof LogVariantRegistry;
 
 export type LogMethod = "log" | "_log" | "$log" | "_$log";
 
-export type LogType = "log" | "warn" | "error" | "info" | "debug";
+export type LogType = "log" | "warn" | "error" | "info" | "debug" | "table";
 export type LogParams = {
   parent: Log | DOM;
   type?: LogType;

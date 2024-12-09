@@ -24,13 +24,15 @@ type LogLevelOptions = PrefixOptions & {
 
 const defaults = {
   typeColors: {
+    table: "white",
     warn: "yellow",
     debug: "green",
-    info: "blue",
     error: "red",
+    info: "blue",
     log: "white",
   },
   typeLabels: {
+    table: "TBL",
     debug: "DBG",
     error: "ERR",
     warn: "WRN",

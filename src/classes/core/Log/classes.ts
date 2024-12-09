@@ -6,6 +6,7 @@ import type {
   LogParams,
   LogType,
 } from "./types.ts";
+import type { TableData, TableDataInput } from "@classes/core/LogData/types.ts";
 
 // Classes
 import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
@@ -166,7 +167,7 @@ export class Log {
   }
 
   // CHANGED: After adding a child, set the child's childIndex.
-  protected addChild(child: Log) {
+  addChild(child: Log) {
     this.children.push(child);
     this.informOfUpdate();
     return child;
@@ -414,7 +415,7 @@ export class Log {
 }
 
 export class MogLog extends Log {
-  constructor(options: LogParams, arguments_: any[]) {
+  constructor(options: LogParams, arguments_: any[] | any) {
     super(options, arguments_);
   }
 }
@@ -536,5 +537,26 @@ export class PowerLog extends Log {
     if (!this.resolved) {
       this.nextFrame();
     }
+  }
+}
+
+export class TableLog extends MogLog {
+  tableData: TableDataInput;
+  constructor(options: LogParams, tableData: TableDataInput) {
+    super(options, "");
+
+    this.tableData = tableData;
+    this.revalidateData();
+  }
+
+  protected revalidateData(): LogData {
+    this.logData = new LogData(this.root, this, {
+      treePrefix: this.treePrefix,
+      data: this.message,
+      raw: this.raw,
+      type: "table",
+    });
+
+    return this.logData;
   }
 }

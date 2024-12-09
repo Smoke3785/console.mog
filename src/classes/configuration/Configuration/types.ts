@@ -67,6 +67,7 @@ export type LogFn = (chalk: ChalkInstance, ctx?: MogContext) => [...any];
 export type FnLogGeneric = XOR<[LogFn], [...any]>;
 
 export type LogTypes<CTS extends LogType[] = never> = {
+  table: LogType;
   debug: LogType;
   error: LogType;
   info: LogType;
