@@ -1,5 +1,5 @@
-import { DOM } from "@classes/DOM/class.ts";
 import { Log, RawLog, PowerLog, MogLog } from "./index.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
 
 export type LogVariantRegistry = {
   mogLog: MogLog;
@@ -8,6 +8,8 @@ export type LogVariantRegistry = {
 };
 
 export type VariantName = keyof LogVariantRegistry;
+
+export type LogMethod = "log" | "_log" | "$log" | "_$log";
 
 export type LogType = "log" | "warn" | "error" | "info" | "debug";
 export type LogParams = {

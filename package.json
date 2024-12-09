@@ -1,10 +1,10 @@
 {
   "name": "console.mog",
-  "version": "0.0.4",
-  "description": "Looksmaxx your console 🤫🧏",
+  "version": "0.0.6",
+  "description": "Looksmax your console 🤫🧏",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iliadwebdev/iliad-standard-issue"
+    "url": "https://github.com/Smoke3785/console.mog"
   },
   "license": "ISC",
   "author": "Smoke3785",
@@ -54,15 +54,13 @@
     "build": "tsup && env NODE_ENV=production tsup && tsup",
     "disabled-postinstall": "./src/scripts/install-tmux.sh",
     "dev": "env NODE_ENV=production tsup && tsup --watch",
-    "ts:dev": "tsx --watch test",
+    "ts:dev": "env NODE_ENV=internal-dev && tsx --watch test",
     "lint": "tsc",
     "test": "rollup -c && node test/index.ts",
     "test-": "node test/index.ts"
   },
   "dependencies": {
     "memoize": "github:Smoke3785/memoize#installable",
-    "@iliad.dev/primitive-extensions": "*",
-    "@iliad.dev/ts-utils": "*",
     "@preact/signals-core": "^1.8.0",
     "chalk": "^5.3.0",
     "deepmerge": "^4.3.1",

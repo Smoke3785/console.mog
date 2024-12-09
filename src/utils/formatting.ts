@@ -1,44 +1,45 @@
-import { ThothConfigStrict } from "@classes/configuration/Configuration/types.ts";
-import { PadType } from "@types";
+// Types
+import type { TimeStampComponents } from "@instances/prefixes/TimeStamp.ts";
+import type { PadType } from "@types";
 
 function ensureMsLength(ms: number): string {
   return `${ms}`.padStart(3, "0");
 }
-
-type TimestampComponents =
-  ThothConfigStrict["prefix"]["timestamp"]["components"];
-
-export function getTimestamp(
-  tsComponents: TimestampComponents,
-  timestampMs?: number
-): string {
+type GetTimeStampOptions = {
+  toLocaleStringOptions?: Intl.DateTimeFormatOptions;
+  tsComponents: TimeStampComponents[];
+  timestampMs?: number;
+};
+export function getTimestamp({
+  toLocaleStringOptions,
+  tsComponents,
+  timestampMs,
+}: GetTimeStampOptions): string {
   let finalComponents: string[] = [];
 
-  let components = [tsComponents].flat();
-
+  const components = [tsComponents].flat();
   const now = timestampMs ? new Date(timestampMs) : new Date();
-  const date = now.toLocaleDateString();
-  const time = now.toLocaleTimeString(undefined, {
-    hour12: false,
-  });
 
   if (components.includes("date")) {
+    const date = now.toLocaleDateString(undefined, toLocaleStringOptions);
     finalComponents.push(date);
   }
 
   if (components.includes("time")) {
-    let timeString = time;
+    let time = now.toLocaleTimeString(undefined, {
+      ...toLocaleStringOptions,
+      hour12: toLocaleStringOptions?.hour12 ?? false,
+    });
+
     if (components.includes("milliseconds")) {
-      timeString += `.${ensureMsLength(now.getMilliseconds())}`;
+      time += `.${ensureMsLength(now.getMilliseconds())}`;
     }
-    finalComponents.push(timeString);
+
+    finalComponents.push(time);
   }
 
-  const joinedComponents = finalComponents.join(" ");
-
-  return `[${joinedComponents}]`;
+  return finalComponents.join(" ");
 }
-
 type PadFn = (str: string, length: number) => string;
 export function resolvePadType(padType: PadType): PadFn {
   switch (padType) {

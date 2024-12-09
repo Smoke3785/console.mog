@@ -3,13 +3,19 @@ import type {
   CreateChildOptions,
   VariantName,
   LogParams,
+  LogType,
 } from "@classes/core/Log/types.ts";
 
 // Classes
 import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
-import { PowerLog, MogLog, Log } from "@classes/core/Log/index.ts";
-import { LogData } from "@classes/core/LogData/class.ts";
+import {
+  PowerLog,
+  MogLog,
+  Log,
+  HorizontalRule,
+} from "@classes/core/Log/index.ts";
 import AverageArray from "@classes/utilities/AverageArray.ts";
+import { LogData } from "@classes/core/LogData/class.ts";
 import LogStore from "@classes/utilities/LogStore.ts";
 
 // Data
@@ -23,6 +29,7 @@ import { createChildLog, createChildOptions } from "@classes/core/Log/utils.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
 import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
+import * as $R from "remeda";
 
 // ===========================================================================
 // DOM RENDERER
@@ -137,30 +144,38 @@ export class DOM {
   }
 
   /**
-   * Recursively collect lines from all nodes in a stable order.
+   * Recursively collect lines from all nodes in a stable reverse order.
    */
-  private collectLogData(): LogData[] {
+  private collectLogData(lineCount: number = 1000): LogData[] {
     const lines: LogData[] = [];
 
-    // Recursive function to traverse the tree and collect lines
+    // Recursive function to traverse the tree and collect lines in reverse order
     const traverse = (node: DOM | Log) => {
+      // Traverse children in reverse order
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        const rNode = node.children[i];
+        if (rNode) traverse(rNode);
+        if (lines.length >= lineCount) return; // Stop if we reach the line count
+      }
+
       // If this is a Log (not the root DOM), add its own line
       if (node instanceof Log) {
         lines.push(node.data);
       }
 
-      // Then traverse its children in order
-      node.children.forEach((child) => {
-        traverse(child);
-      });
+      // Stop if we reach the line count
+      if (lines.length >= lineCount) return;
     };
 
-    // Start traversal from each top-level child
-    for (const child of this.children) {
-      traverse(child);
+    // Traverse the top-level children in reverse order
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      const rNode = this.children[i];
+      if (rNode) traverse(rNode);
+      if (lines.length >= lineCount) break; // Stop if we reach the line count
     }
 
-    return lines;
+    // Return collected lines in the correct order (reverse back)
+    return lines.reverse();
   }
 
   @memoizeDecorator()
@@ -212,6 +227,7 @@ export class DOM {
 
   private dumbRender(hardClear: boolean = false): void {
     const dataToRender = this.collectLogData();
+    const chunks = $R.chunk(dataToRender, 999);
 
     let buffer = "";
 
@@ -301,15 +317,31 @@ export class DOM {
           continue; // Then move on to the next data chunk
         }
 
-        // =======------ * * * * * ------=======
-        //  This is where smart render comes in
-        // =======------ * * * * * ------=======
+        // =======------ * * * * * ------======= //
+        //  This is where smart render comes in  //
+        // =======------ * * * * * ------======= //
         for (let [lineIndex, line] of Object.entries(data.lines)) {
           const lineCursorIndex = dataStartIndex + Number(lineIndex);
 
           log.smartRender(line, lineCursorIndex);
 
-          buffer += `\x1B[${lineCursorIndex};1H`; // Move cursor to line (1-based)
+          // ILIAD: NOTE: TODO: There is a bug here - if the smart-rendered line is at or near the top of the screen, silly things happen.
+          // Adjusting the lineCursorIndex by -1 fixes this, but that causes silly things most of the time.
+          // I suspect this is related to the fact that there is one blank space at the bottom of the screen...
+
+          // Additional note: This could be related to my math for calculating if the line is visible or not.
+          // Additional note: lineCursorIndex works when there is more lines than the terminal height, but lineCursorIndex + 1 works when there are fewer lines than the terminal height.
+          // This smells like Math.abs...
+
+          // This largely solves the problem, but I'm still puzzled by why it is necessary.
+          const mod = Number(totalLinesConsumed <= tHeight);
+
+          // There is still a bit of flickering when the terminal height is 1. Maybe I
+          // should add a special case for that and just dumb render the whole thing.
+
+          // On that note, I should also quit rendering if tHeight is zero because there's no need.
+
+          buffer += `\x1B[${lineCursorIndex + mod};1H`; // Move cursor to line (1-based)
           buffer += "\x1B[2K"; // Clear the entire line
           buffer += line;
         }
@@ -347,6 +379,10 @@ export class DOM {
     this.finalizeRender(full, renderStartTime);
   }
 
+  /**
+   * Informs the DOM that a render is required.
+   * @param full boolean - If true, a full render is requested.
+   */
   public informOfUpdate(full: boolean = false) {
     full && (this.fullRenderRequested = true);
     this.renderRequested = true;
@@ -491,7 +527,7 @@ export class DOM {
     return child;
   }
 
-  private rawLog(type: "debug" | "error" = "debug", data: any) {
+  public rawLog(type: "debug" | "error" = "debug", data: any) {
     const options = createChildOptions("rawLog", {
       parent: this,
       type: type,
@@ -501,18 +537,18 @@ export class DOM {
     return this.addChild(log);
   }
 
-  public log(...args: any[]) {
+  public log(level: LogType = "log", ...args: any[]) {
     const options = createChildOptions("mogLog", {
       parent: this,
-      type: "log",
+      type: level,
     });
 
     const log = createChildLog(this, options, args);
     return this.addChild(log);
   }
 
-  public _log(...args: any[]) {
-    return this.log(...args);
+  public _log(level: LogType = "log", ...args: any[]) {
+    return this.log(level, ...args);
   }
 
   public clear() {
@@ -520,7 +556,22 @@ export class DOM {
     this.informOfUpdate(true);
   }
 
-  public $log(message: string = ""): PowerLog {
+  // Important note: Currently this won't do anything for nested logs.
+  // This seems paradigmatically correct, but it isn't intuitive.
+  public newline(n: number = 1) {
+    const lineNo = Math.max(n - 1, 0); // This method is going to print at least one line no matter what is passed.
+    this.rawLog("debug", "\n".repeat(lineNo));
+  }
+
+  public hr() {
+    const hrLog = new HorizontalRule({
+      parent: this,
+    });
+
+    return this.addChild(hrLog);
+  }
+
+  public $log(level: LogType = "log", message: string = ""): PowerLog {
     const options = createChildOptions("powerLog", {
       parent: this,
       type: "log",
@@ -530,7 +581,7 @@ export class DOM {
     return this.addChild(log);
   }
 
-  public _$log(message: string = "") {
-    return this.$log(message);
+  public _$log(level: LogType = "log", message: string = "") {
+    return this.$log(level, message);
   }
 }

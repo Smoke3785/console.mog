@@ -2,15 +2,15 @@
 import type { LogDataInput } from "./types.ts";
 
 // Classes
-import { DOM } from "@classes/DOM/class.ts";
-import { Log } from "@classes/Log/index.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
+import { Log } from "@classes/core/Log/index.ts";
 import { memoizeDecorator } from "memoize";
 
 // Utils
 import wrapAnsi from "wrap-ansi";
-import * as u from "@utils";
-import chalk from "chalk";
 import util from "util";
+
+import * as utils from "@utils";
 
 // Data
 import { wrapAnsiConfig } from "./data.ts";
@@ -43,10 +43,6 @@ export class LogData {
     return this._data;
   }
 
-  get mfgStamp(): boolean {
-    return this.root.config.prefix.mfgStamp.enabled;
-  }
-
   get linesConsumed(): number {
     return this.memoizedLinesConsumed(this.dataKey);
   }
@@ -63,8 +59,11 @@ export class LogData {
     return wrapAnsi(line, process.stdout.columns, wrapAnsiConfig);
   }
 
-  private joinComponents(components: Array<string | undefined | null>): string {
-    return components.filter((c) => c).join("");
+  private joinComponents(
+    components: Array<string | undefined | null>,
+    joinString: string
+  ): string {
+    return components.filter((c) => c).join(joinString);
   }
 
   private getTypeString(type: LogDataInput["type"]): string {
@@ -77,18 +76,10 @@ export class LogData {
     }[type];
   }
 
-  private getTypePrefix(type: LogDataInput["type"]): string {
-    const fn = this.root.config.typeColors[type];
-    const typeString = this.getTypeString(type);
-
-    return fn(`[${typeString}]`);
-  }
-
-  private getDateString(timestamp: number): string {
-    const { components, color, fn } = this.root.config.prefix.timestamp;
-    const stampString = u.getTimestamp(components, timestamp);
-
-    return fn(color(stampString));
+  private getPrefixValues(): string[] {
+    return this.root.config.prefixes.map((prefix) => {
+      return prefix.getValue(this);
+    });
   }
 
   @memoizeDecorator()
@@ -99,36 +90,41 @@ export class LogData {
 
   @memoizeDecorator()
   private memoizedToString(dataKey: number): string {
-    const components: Array<string | undefined | null> = [];
-    const { treePrefix, namespace, module, type, data, raw, timestamp } =
-      this.data;
+    const prefixComponents: Array<string | undefined | null> = [];
+    const dataComponents: Array<string | undefined | null> = [];
 
-    // These are logs intercepted from the console
+    // Get configuration
+    const { joinString, prefixMarginRight, applyToEmptyLogs } =
+      this.root.config.prefixOptions;
+    const spacing = " ".repeat(prefixMarginRight);
+
+    // Destructure data
+    const { treePrefix, data, raw } = this.data;
+    const isEmpty = data.trim() === "";
+
     if (raw) {
+      // These are logs intercepted from the console
       const line = this.joinData(data);
       return util.format(line);
     }
 
-    if (this.mfgStamp) {
-      components.push(chalk.hex("#00ace0")("◭"), " ");
-    }
+    // If the log is empty and the config says not to apply prefixes to empty logs, return an empty string
+    if (isEmpty && !applyToEmptyLogs) return "";
 
-    if (timestamp && !isNaN(Number(timestamp))) {
-      components.push(this.getDateString(Number(timestamp)));
-    }
+    // Assembly the component arrays
+    prefixComponents.push(...this.getPrefixValues());
+    dataComponents.push(treePrefix, this.joinData(data)); // This doesn't need to be nested here, I don't think...
 
-    components.push(
-      namespace,
-      // module,
-      `(${chalk.magentaBright(this.log.uid)}) `,
-      this.getTypePrefix(type),
-      treePrefix,
-      " ",
-      this.joinData(data),
-    );
+    // Construct the line
+    const linePt1 = this.joinComponents(prefixComponents, joinString);
+    const linePt2 = this.joinComponents(dataComponents, " ");
+    const line = `${linePt1}${spacing}${linePt2}`;
 
-    const line = this.joinComponents(components); // Assemble components into a single string
-    const nodeFormatted = util.format(line); // Format the string with util.format. Not certain if this changes anything.
+    // Again, if the log is empty, return the line as is. We can skip expensive formatting.
+    if (isEmpty) return line;
+
+    // Format the string with util.format. Not certain if this changes anything.
+    const nodeFormatted = util.format(line);
 
     // Wrap with ansi-wrap. This is a more predictable way to wrap than trying to derive from the terminal width.
     const ansiWrapped = this.wrapAnsi(nodeFormatted);

@@ -1,48 +1,70 @@
-import {
-  TimeStampComponents,
-  PolymorphicColor,
-  PadType,
-  ColorFn,
-} from "@types";
+// Types
+import type { PolymorphicColor, ColorFn } from "@types";
+import type { XOR } from "@iliad.dev/ts-utils/@types";
+import type { ChalkInstance } from "chalk";
+
+// Classes
+import { MogContext } from "@classes/core/MogContext/index.ts";
+import { Prefix, PrefixOptions } from "@classes/core/Prefix/index.ts";
+
+// ======================================
+// CONFIGURATION OPTIONS VARIANTS
+// Here we expose three variants of the configuration options:
+// 1. The input configuration options, optionals and all
+// 2. The strict configuration options, with all options required
+// 3. The normalized configuration options, with all options required and coerced into a single type.
+// NOTE: ILIAD: TODO: Is it worth making a library to handle this kind of thing?
+// ======================================
 
 export type MogContextInput = {
-  prefix?: {
-    prefixOrder?: StandardPrefix[];
+  prefixes?: Array<Prefix | PrefixOptions>;
+  prefixOptions?: {
+    prefixMarginRight?: number;
+    applyToEmptyLogs?: boolean;
     joinString?: string;
-    showTypes?: boolean;
-    padType?: PadType;
-    newLine?: boolean;
-    timestamp: {
-      components?: TimeStampComponents | TimeStampComponents[];
-      color?: PolymorphicColor;
-      fn?: (s: string) => string; // The last function in the chain should return a string.
-      enabled: boolean;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    module?: {
-      fn?: (s: string) => string; // The last function in the chain should return a string.
-      color?: PolymorphicColor;
-      enabled: boolean;
-      name?: string;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    namespace?: {
-      fn?: (s: string) => string; // The last function in the chain should return a string.
-      color?: PolymorphicColor;
-      enabled: boolean;
-      name?: string;
-    };
-    // Whether or not to show the manufacturer stamp (Iliad)
-    mfgStamp?: {
-      enabled?: boolean;
-    };
+  };
+  spinnerOptions?: {
+    defaultSpinnerColor: PolymorphicColor;
+    spinnerFramesPerSecond: number;
   };
   overrideConsole?: boolean;
 };
 
-import { XOR, Optional } from "@iliad.dev/ts-utils/@types";
-import { MogContext } from "@classes/MogContext/index.ts";
-import { ChalkInstance } from "chalk";
+export type MogConfigStrict = {
+  prefixes: Array<Prefix | PrefixOptions>;
+  prefixOptions: {
+    prefixMarginRight: number;
+    applyToEmptyLogs: boolean;
+    joinString: string;
+  };
+  spinnerOptions: {
+    defaultSpinnerColor: PolymorphicColor;
+    spinnerFramesPerSecond: number;
+  };
+
+  overrideConsole: boolean;
+};
+
+export type MogConfigNormalized = {
+  prefixes: Array<Prefix>;
+  prefixOptions: {
+    applyToEmptyLogs?: boolean;
+    prefixMarginRight: number;
+    joinString: string;
+  };
+  spinnerOptions: {
+    spinnerFramesPerSecond: number;
+    defaultSpinnerColor: ColorFn;
+  };
+
+  overrideConsole: boolean;
+};
+
+// ======================================
+// Utility types
+
+export type LogFn = (chalk: ChalkInstance, ctx?: MogContext) => [...any];
+export type FnLogGeneric = XOR<[LogFn], [...any]>;
 
 export type LogTypes<CTS extends LogType[] = never> = {
   debug: LogType;
@@ -67,93 +89,3 @@ export type LogType = {
 };
 
 export type StandardPrefix = "mfgStamp" | "timestamp" | "module" | "namespace";
-
-export type ThothConfigStrict = {
-  prefix: {
-    prefixOrder: StandardPrefix[];
-    joinString: string;
-    showTypes: boolean;
-    newLine: boolean;
-    padType: PadType;
-    timestamp: {
-      components: TimeStampComponents | TimeStampComponents[];
-      fn: Optional<(s: string) => string>; // The last function in the chain should return a string.
-      color: PolymorphicColor;
-      enabled: boolean;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    module: {
-      fn: Optional<(s: string) => string>; // The last function in the chain should return a string.
-      color: PolymorphicColor;
-      enabled: boolean;
-      name: string;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    namespace: {
-      fn: Optional<(s: string) => string>; // The last function in the chain should return a string.
-      color: PolymorphicColor;
-      enabled: boolean;
-      name: string;
-    };
-    // Whether or not to show the manufacturer stamp (Iliad)
-    mfgStamp: {
-      enabled: boolean;
-    };
-  };
-  typeColors: Record<keyof LogTypes, PolymorphicColor>;
-  overrideConsole: boolean;
-};
-
-export type ThothConfigNormalized = {
-  prefix: {
-    prefixOrder: StandardPrefix[];
-    joinString: string;
-    showTypes: boolean;
-    newLine: boolean;
-    padType: PadType;
-    timestamp: {
-      components: TimeStampComponents | TimeStampComponents[];
-      fn: (s: string) => string; // The last function in the chain should return a string.
-      enabled: boolean;
-      color: ColorFn;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    module: {
-      fn: (s: string) => string; // The last function in the chain should return a string.
-      enabled: boolean;
-      color: ColorFn;
-      name: string;
-    };
-    // Whether or not to show the namespace (e.g. Iliad, Thoth, Atlas, Gcollective, etc.)
-    namespace: {
-      fn: (s: string) => string; // The last function in the chain should return a string.
-      enabled: boolean;
-      color: ColorFn;
-      name: string;
-    };
-    // Whether or not to show the manufacturer stamp (Iliad)
-    mfgStamp: {
-      enabled: boolean;
-    };
-  };
-  typeColors: Record<keyof LogTypes, ColorFn>;
-  overrideConsole: boolean;
-};
-
-export type LogFn = (chalk: ChalkInstance, ctx?: MogContext) => [...any];
-export type FnLogGeneric = XOR<[LogFn], [...any]>;
-
-// export type ModuleParam =
-//   | string
-//   | {
-//       fn?: (s: string) => string; // The last function in the chain should return a string.
-//       color?: PolymorphicColor;
-//       name?: string;
-//     };
-
-// export type StrictModuleParam = {
-//   fn: undefined | ((s: string) => string); // The last function in the chain should return a string.
-//   color: PolymorphicColor;
-//   enabled: boolean;
-//   name: string;
-// };

@@ -3,6 +3,7 @@ import { PolymorphicColor, ColorFn, RGBColor, HexColor, PadType } from "@types";
 
 // Utils
 import chalk, { ForegroundColorName, BackgroundColorName } from "chalk";
+import memoize from "memoize";
 
 export function formatToBuffer(args: unknown[]): Buffer {
   // Convert arguments to a string, separating by spaces, and add a newline
@@ -62,14 +63,45 @@ function isColorFn(color: PolymorphicColor): color is ColorFn {
 }
 
 export function resolvePolymorphicColor(color: PolymorphicColor): ColorFn {
-  if (isColorFn(color)) return color;
+  try {
+    if (isColorFn(color)) return color;
 
-  if (isChalkColorString(color)) return chalk[color];
-  if (isRgb(color)) return chalk.rgb(...color);
+    if (isChalkColorString(color)) return chalk[color];
+    if (isRgb(color)) return chalk.rgb(...color);
 
-  return chalk.hex(color);
+    return chalk.hex(color);
+  } catch (e) {
+    throw new Error(`Failed to resolve color: ${color}`);
+  }
 }
 
+type ArrayOrObjectOf<T> = Record<string, T> | T[];
+type ReturnedArrayOrObjectOf<T, R> = T extends Array<R>
+  ? R[]
+  : Record<string, R>;
+
+export function resolvePolymorphicColors<
+  T extends ArrayOrObjectOf<PolymorphicColor>
+>(colors: T): ReturnedArrayOrObjectOf<T, ColorFn> {
+  const isArray = Array.isArray(colors);
+  const normalizedColors = Object.entries(colors);
+
+  const finalEntries: [string, ColorFn][] = [];
+
+  for (let [key, color] of normalizedColors) {
+    finalEntries.push([key, resolvePolymorphicColor(color)]);
+  }
+
+  let result = Object.fromEntries(finalEntries);
+
+  return isArray
+    ? (Object.values(result) as ReturnedArrayOrObjectOf<T, ColorFn>)
+    : (result as ReturnedArrayOrObjectOf<T, ColorFn>);
+}
+
+export const memoized_resolvePolymorphicColor = memoize(
+  resolvePolymorphicColor
+);
 export const normalizePolymorphicColor = resolvePolymorphicColor;
 
 export const dmo = {

@@ -1,4 +1,4 @@
-import { PowerLog } from "@classes/Log/index.ts";
+import { PowerLog } from "@classes/core/Log/index.ts";
 
 export class SpinnerManager {
   private static spinners: Set<PowerLog> = new Set();

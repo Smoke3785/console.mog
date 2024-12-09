@@ -5,11 +5,11 @@ import type {
   LogParams,
 } from "./types.ts";
 import { Log, PowerLog, RawLog, MogLog } from "./index.ts";
-import { DOM } from "@classes/DOM/class.ts";
+import { DOM } from "@classes/core/DOM/class.ts";
 
 export function createChildOptions<T extends VariantName = "mogLog">(
   variant: T,
-  logParams: LogParams,
+  logParams: LogParams
 ): CreateChildOptions<T> {
   return {
     variant: variant as T,
@@ -20,7 +20,7 @@ export function createChildOptions<T extends VariantName = "mogLog">(
 export function createChildLog<T extends VariantName>(
   parent: Log | DOM,
   options: CreateChildOptions<T>,
-  arguments_: any[] | string = "",
+  arguments_: any[] | string = ""
 ): LogVariantRegistry[T] {
   const { logParams, variant = "log" } = options;
   const arguments__ = [arguments_].flat(1);
@@ -32,7 +32,7 @@ export function createChildLog<T extends VariantName>(
 
   switch (variant) {
     case "powerLog": {
-      child = new PowerLog(logParams, arguments__);
+      child = new PowerLog(logParams, arguments__[0]); // Power log is special, only takes a string.
       break;
     }
     case "mogLog": {

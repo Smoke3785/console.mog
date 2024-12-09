@@ -1,6 +1,7 @@
 export * from "./console.mog.ts";
 export * from "./formatting.ts";
 export * from "./debugging.ts";
+export * from "./prefixes.ts";
 export * from "./utils.ts";
 
 export function _<T extends object[]>(...u: T): T[number] {

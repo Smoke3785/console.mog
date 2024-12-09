@@ -30,16 +30,23 @@
       "@types": ["./src/@types/index.ts"],
       "@types*": ["./src/@types*"],
       "@utils": ["./src/utils/index.ts"],
-      "@utils*": ["./src/utils*"]
+      "@utils*": ["./src/utils*"],
+      "@instances": ["./src/instances/index.ts"],
+      "@instances/*": ["./src/instances/*"],
+
+      // For testing - these will be package.json exports in prod
+      "console.mog": ["./src/index.ts"],
+      "console.mog/prefixes": ["./src/instances/prefixes/index.ts"]
     }
   },
   "exclude": ["rollup.config.js", "node_modules/*", "cjs", "esm"],
   "include": [
-    "node_modules/@iliad.dev/ts-utils/@globals",
+    "node_modules/@iliad.dev/ts-utils/@types/**/*",
     "src/@types/**/*",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.ts",
+    "test/**/*",
     "src/**/*"
   ]
 }

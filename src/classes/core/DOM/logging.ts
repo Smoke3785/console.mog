@@ -4,15 +4,17 @@ import { log as _log, dLog as _dLog, stripAnsi } from "@utils";
 import { AverageArray } from "@classes/utilities/AverageArray.ts";
 
 const fLog = () => {};
-export const dLog = process.env.NODE_ENV === "test" ? _dLog : fLog;
-export const log = process.env.NODE_ENV === "test" ? _log : fLog;
+export const dLog = process.env.NODE_ENV === "internal-dev" ? _dLog : fLog;
+export const log = process.env.NODE_ENV === "internal-dev" ? _log : fLog;
 
 export function smartRender(line: any, lineCursorIndex: any): void {
-  dLog(
+  const args = [
     2,
     { lineCursorIndex },
-    `\nRendering line "${stripAnsi(line)}" at index ${lineCursorIndex}`
-  );
+    `\nRendering line "${stripAnsi(line)}" at index ${lineCursorIndex}`,
+  ];
+  // process.(...args);
+  // dLog(...args);
 }
 
 export function render(fr: number, times: AverageArray) {

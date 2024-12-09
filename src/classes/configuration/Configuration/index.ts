@@ -1,15 +1,26 @@
-import { ThothConfigInput, ThothConfigNormalized } from "./types.ts";
+// Types
+import { MogContextInput, MogConfigNormalized } from "./types.ts";
 
-// Utils
-import * as u1 from "./utils.ts";
-import * as u0 from "@utils";
-const u = { ...u0, ...u1 };
+// Classes
+import { Prefix } from "@classes/core/Prefix/index.ts";
+import { MogContext } from "@classes/core/MogContext/index.ts";
 
-export class Configuration implements ThothConfigNormalized {
-  configObject: ThothConfigNormalized;
+// Utils - This is a stupid pattern.
+import * as configUtils from "./utils.ts";
 
-  constructor(thothConfigObject: ThothConfigInput) {
-    this.configObject = u.normalizeConfig(thothConfigObject);
+export class Configuration implements MogConfigNormalized {
+  configObject: MogConfigNormalized;
+  attachedContext: MogContext;
+  prefixes: Array<Prefix>;
+
+  constructor(thothConfigObject: MogContextInput, attachedContext: MogContext) {
+    this.configObject = configUtils.normalizeConfig(
+      thothConfigObject,
+      attachedContext
+    );
+
+    this.prefixes = this.configObject.prefixes;
+    this.attachedContext = attachedContext;
   }
 
   // Get functions from the config object that are called at different points in the log lifecycle.
@@ -18,26 +29,15 @@ export class Configuration implements ThothConfigNormalized {
     return {};
   }
 
-  get prefix() {
-    return this.configObject.prefix;
+  get spinnerOptions() {
+    return this.configObject.spinnerOptions;
   }
 
-  get typeColors() {
-    return this.configObject.typeColors;
-  }
-
-  // Perhaps this should be added to LogData?
-  get namespace(): string | null {
-    const { name, color, fn, enabled } = this.prefix.namespace;
-    return enabled ? fn(color(name)) : null;
+  get prefixOptions() {
+    return this.configObject.prefixOptions;
   }
 
   get overrideConsole(): boolean {
     return this.configObject.overrideConsole;
-  }
-
-  get module(): string | null {
-    const { name, color, fn, enabled } = this.prefix.module;
-    return enabled ? fn(color(name)) : null;
   }
 }
