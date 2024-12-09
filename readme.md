@@ -1,7 +1,16 @@
 # 💅🏻 console.mog 🤫🧏
 
+Looksmax your console. This is a powerful tool for building attractive logs that closely represent your data. It has a simple, declarative API and minimal dependencies.
 
-## Critical for alpha 🐺
+> [!IMPORTANT]  
+This is in alpha (💪🐺), if that. This library is not ready for general use and won't be for a few weeks.
+
+
+
+## Features / Todo 
+Stuff I gotta do before shilling on reddit. 🤨😗
+
+### Critical for alpha 🐺
 - Graceful failure. Currently crash reports are printed overtop of the console... can we wrap them to handle graceful failures?
 - Make sure `console.mog` has parity with console.log - may need to just proxy stuff like chart to underlying functionality.
 - Integrate my timestamp syntax to mirror native `console` implementation.
@@ -9,14 +18,16 @@
 - Make readme
 - Stress test
 
-## Critical for literally anything useful
+### Critical for literally anything useful
 - Performance improvements. Obviously nowhere near as fast as native implementation, but there's *tremendous* room for performance improvements.
   - Currently dumb render starts from the top and goes down. That's silliness.
   - VSCode only renders 1,100-ish logs anyhow. Rendering only needs to be fancy for the last few thousand logs.
     - When the program exits / crashes, a static version of logs should be spat into the console. Nothing fancy.
   - Further testing has revealed that... this is going to need some work.
+- Determine interoperability with other logging libraries. 
+- Determine interoperability with CLI tools that handle other stuff
 
-## Future features
+### Future features
 - `console.promise(promise)` syntax, `console.promiseAll(promises)` syntax.
 - Render boxes, links, rainbow text.
 - Create Toolbox interface that contains chalk, link, etc. and can be passed to every log.
@@ -28,3 +39,7 @@
   - `SimpleRemote` simple api for duplicating your logs as HTTP requests
   - `SimpleWebhook` is this redundant with above?
 - `console.tree()` for directly rendering nested structures. May need a callback fn to run on every node to get `children` and `label`.
+- Syntax highlighting in returned info.
+  - Can be explicit `console.highlight("json", fs.readFileSync('./package.json'))`
+  - Or implicit `console.log({keyOne: "string", keyTwo: 5, keyThree: [1,2,3]})`
+- console.dir()?? - https://github.com/athityakumar/colorls#readme
