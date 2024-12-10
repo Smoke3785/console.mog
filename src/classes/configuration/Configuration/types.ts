@@ -4,8 +4,8 @@ import type { XOR } from "@iliad.dev/ts-utils/@types";
 import type { ChalkInstance } from "chalk";
 
 // Classes
-import { MogContext } from "@classes/core/MogContext/index.ts";
 import { Prefix, PrefixOptions } from "@classes/core/Prefix/index.ts";
+import { MogContext } from "@classes/core/MogContext/index.ts";
 
 // ======================================
 // CONFIGURATION OPTIONS VARIANTS
@@ -17,6 +17,7 @@ import { Prefix, PrefixOptions } from "@classes/core/Prefix/index.ts";
 // ======================================
 
 export type MogContextInput = {
+  reportGracefulExit?: boolean;
   prefixes?: Array<Prefix | PrefixOptions>;
   prefixOptions?: {
     prefixMarginRight?: number;
@@ -31,6 +32,7 @@ export type MogContextInput = {
 };
 
 export type MogConfigStrict = {
+  reportGracefulExit: boolean;
   prefixes: Array<Prefix | PrefixOptions>;
   prefixOptions: {
     prefixMarginRight: number;
@@ -46,6 +48,7 @@ export type MogConfigStrict = {
 };
 
 export type MogConfigNormalized = {
+  reportGracefulExit: boolean;
   prefixes: Array<Prefix>;
   prefixOptions: {
     applyToEmptyLogs?: boolean;

@@ -29,6 +29,14 @@ export class Configuration implements MogConfigNormalized {
     return {};
   }
 
+  get reportGracefulExit(): boolean {
+    return this.configObject.reportGracefulExit;
+  }
+
+  getPrefixConfig(name: string): Record<string, unknown> | null {
+    return this.prefixes.find((prefix) => prefix.name === name)?.config ?? null;
+  }
+
   get spinnerOptions() {
     return this.configObject.spinnerOptions;
   }
