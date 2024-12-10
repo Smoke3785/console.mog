@@ -62,7 +62,17 @@ export class LogLevel extends Prefix {
     return this.typeLabels[type];
   }
 
+  private replacedByHttpMethod(logData: LogData): boolean {
+    if (!logData.additionalContext?.httpMethod) return false;
+    const httpMethodConfig =
+      logData.log.root.config.getPrefixConfig("httpMethod");
+    if (!httpMethodConfig) return false;
+    return !!httpMethodConfig?.replaceLogLevel;
+  }
+
   getValue(logData: LogData): string {
+    if (this.replacedByHttpMethod(logData)) return "";
+
     const { type } = logData.data;
 
     const colorFn = this.getTypeColor(type);

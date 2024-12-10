@@ -1,7 +1,14 @@
 import { MogContextInput } from "@classes/configuration/Configuration/types.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
-import { MogLog, PowerLog, TableLog } from "@classes/core/Log/index.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
+import {
+  PromiseLog,
+  TableLog,
+  PowerLog,
+  MogLog,
+  AddCtx,
+} from "@classes/core/Log/index.ts";
+import chalk from "chalk";
 
 export type MogContextConfigObject = MogContextInput & {};
 export class MogContext implements Console {
@@ -12,9 +19,14 @@ export class MogContext implements Console {
   private originalConsole: Console;
   private DOM: DOM;
 
+  public static Console = console.Console;
+
+  // Utility re-exports
+  public readonly chalk = chalk;
+
   constructor(
     thothConfigObject: MogContextConfigObject = {},
-    originalConsole: Console
+    originalConsole: Console = console
   ) {
     this.configuration = new Configuration(thothConfigObject, this);
     this.originalConsole = originalConsole;
@@ -25,6 +37,12 @@ export class MogContext implements Console {
   // Expose certain private data from the engine.
   public get context() {
     return {};
+  }
+
+  // NOTE: TODO: This entire system needs to be typed properly
+  public withContext(ctx: AddCtx): MogContext {
+    this.DOM.withContext(ctx);
+    return this;
   }
 
   // =================================================
@@ -121,8 +139,12 @@ export class MogContext implements Console {
     return this;
   }
 
-  hr(): MogContext {
-    this.DOM.hr();
+  promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
+    return this.DOM.promise<T>(promise, label);
+  }
+
+  hr(title?: string, char?: string): MogContext {
+    this.DOM.hr(title, char);
     return this;
   }
 

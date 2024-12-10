@@ -17,7 +17,7 @@ export class Prefix {
   // This will be injected later, trust the plan.
   // This is an objectively stupid pattern, I know.
   private context!: MogContext;
-  private name: string;
+  public name: string;
 
   constructor(options: PrefixOptions = {}) {
     // Normalize the options into callbacks
@@ -46,6 +46,10 @@ export class Prefix {
 
   protected getColorFn(): ColorFn {
     return this.colorCallback;
+  }
+
+  get config() {
+    return {};
   }
 
   protected defaultOptions(): PrefixOptions {

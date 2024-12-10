@@ -3,7 +3,7 @@ import type { LogDataInput, OrganizedTableData } from "./types.ts";
 
 // Classes
 import { DOM } from "@classes/core/DOM/class.ts";
-import { Log, TableLog } from "@classes/core/Log/index.ts";
+import { AddCtx, Log, TableLog } from "@classes/core/Log/index.ts";
 import { memoizeDecorator } from "memoize";
 
 // Utils
@@ -43,6 +43,10 @@ export class LogData {
 
   get data(): LogDataInput {
     return this._data;
+  }
+
+  get additionalContext(): AddCtx {
+    return this.log.additionalContext;
   }
 
   get linesConsumed(): number {
