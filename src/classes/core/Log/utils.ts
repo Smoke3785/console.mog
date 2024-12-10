@@ -50,3 +50,24 @@ export function createChildLog<T extends VariantName>(
 
   return child as LogVariantRegistry[T];
 }
+
+export function centerTitleInHr(char: string, title?: string) {
+  char = `${char}`;
+
+  let cols = process.stdout.columns;
+  let charNo = cols / char.length;
+
+  if (!title) return char.repeat(charNo);
+
+  const isOdd = cols % 2 !== 0;
+  if (isOdd) cols -= 1;
+
+  const eachSide = Math.floor((cols - title.length - 2) / 2);
+
+  const baseSpace = isOdd ? " " : "";
+
+  const leftChars = char.repeat(eachSide / char.length);
+  const rightChars = [...leftChars].reverse().join("");
+
+  return baseSpace + leftChars + ` ${title} ` + rightChars;
+}

@@ -38,6 +38,7 @@ export function stripAnsi(str: string) {
 
 export function log(...args: any[]): void {
   const fmt = util.format(...args, "\n");
+  process.stdout.write(fmt);
 
   // debugWriteStream.log(fmt);
   // devWriteStreamP.log(fmt);

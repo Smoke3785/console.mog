@@ -10,9 +10,11 @@ export type LogVariantRegistry = {
 export type VariantName = keyof LogVariantRegistry;
 
 export type LogMethod = "log" | "_log" | "$log" | "_$log";
+export type AddCtx = Record<string, any>;
 
 export type LogType = "log" | "warn" | "error" | "info" | "debug" | "table";
 export type LogParams = {
+  additionalContext?: AddCtx;
   parent: Log | DOM;
   type?: LogType;
 };
