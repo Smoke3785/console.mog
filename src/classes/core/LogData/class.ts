@@ -7,6 +7,7 @@ import { AddCtx, Log, TableLog } from "@classes/core/Log/index.ts";
 import { memoizeDecorator } from "memoize";
 
 // Utils
+import { replaceLineComponent } from "@classes/core/Log/data.ts";
 import wrapAnsi from "wrap-ansi";
 import Table from "cli-table";
 import util from "util";
@@ -61,8 +62,40 @@ export class LogData {
     return args.join("");
   }
 
+  private wrapAnsiLeading(
+    line: string,
+    leadingSpace: number = 0,
+    treePrefixSpace: number = 0
+  ): string {
+    const prefixReplacement = this.log.isLastChild ? "  " : "│ ";
+    const prefixSpace = this.log.isLastChild ? " " : "";
+    const initialWrapped = wrapAnsi(
+      line,
+      process.stdout.columns - leadingSpace,
+      wrapAnsiConfig
+    )
+      .split("\n")
+      .map((l, idx) => {
+        if (idx === 0) return l;
+        return (
+          " ".repeat(leadingSpace) +
+          replaceLineComponent(this.log.treePrefix, prefixReplacement) +
+          prefixSpace +
+          l
+        );
+      })
+      .join("\n");
+
+    return initialWrapped;
+  }
+
   private wrapAnsi(line: string): string {
-    return wrapAnsi(line, process.stdout.columns, wrapAnsiConfig);
+    const initialWrapped = wrapAnsi(
+      line,
+      process.stdout.columns,
+      wrapAnsiConfig
+    );
+    return initialWrapped;
   }
 
   private joinComponents(
@@ -144,8 +177,22 @@ export class LogData {
     // Format the string with util.format. Not certain if this changes anything.
     const nodeFormatted = util.format(line);
 
-    // Wrap with ansi-wrap. This is a more predictable way to wrap than trying to derive from the terminal width.
-    const ansiWrapped = this.wrapAnsi(nodeFormatted);
+    let ansiWrapped: string;
+
+    if (this.root.config.preserveMarginOnWrap) {
+      const leadingSpace =
+        utils.stripAnsi(linePt1).length + utils.stripAnsi(spacing).length;
+
+      // Wrap with ansi-wrap. This is a more predictable way to wrap than trying to derive from the terminal width.
+      ansiWrapped = this.wrapAnsiLeading(
+        nodeFormatted,
+        leadingSpace,
+        utils.stripAnsi(treePrefix).length
+      );
+    } else {
+      ansiWrapped = this.wrapAnsi(nodeFormatted);
+    }
+
     this.lines = ansiWrapped.split("\n");
 
     return ansiWrapped;

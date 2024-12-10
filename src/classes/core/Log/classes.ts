@@ -62,13 +62,21 @@ export class Log {
     this.root = this.parent.root;
     this.depth = this.parent.depth + 1;
 
-    // If anything causes a problem, it will be this!
-    this.message = util.format(...arguments_);
+    // If anything causes a problem, it will be this!x
+    this.message = this.formatArgs(arguments_);
     options.type && (this.type = options.type);
     this.uid = `${this.constructor.name}-${uid()}`;
 
     this.logData = this.revalidateData();
     this.additionalContext = this.parent.tempContextForChild;
+  }
+
+  protected formatArgs(args: any[] | any): string {
+    if (Array.isArray(args)) {
+      return util.format(...args);
+    } else {
+      return util.format(args);
+    }
   }
 
   protected get siblings(): LogStore {
@@ -100,7 +108,7 @@ export class Log {
   }
 
   // CHANGED: Use childIndex to determine if this is the last child.
-  protected get isLastChild(): boolean {
+  public get isLastChild(): boolean {
     if (this.parent instanceof DOM) return false;
     return $R.last(this.parent.children) === this;
   }
@@ -119,6 +127,7 @@ export class Log {
 
   getTreePrefix(): string {
     if (this.parent instanceof DOM) return "";
+
     const chunks: string[] = [];
 
     chunks.push(this.isLastChild ? LINES.LAST_CHILD : LINES.CHILD);
@@ -580,15 +589,17 @@ export class PowerLog extends Log {
   }
 
   public succeed(message?: string): PowerLog {
-    return this.update(
+    this.resolve(
       `${chalk.green(`✔${this.animSpace}`)} ${message || this._message}`
     );
+    return this;
   }
 
   public fail(message?: string): PowerLog {
-    return this.update(
+    this.resolve(
       `${chalk.red(`✖${this.animSpace}`)} ${message || this._message}`
     );
+    return this;
   }
 
   public resolve(message?: string) {
@@ -611,12 +622,15 @@ export class PowerLog extends Log {
   }
 }
 
+type PrefixOrCallback<T> = string | ((value: T) => string);
+
 export class PromiseLog<T = any> extends PowerLog {
   protected thenCallback?: (log: PromiseLog, value: T) => void;
   protected catchCallback?: (log: PromiseLog, error: any) => void;
   protected finallyCallback?: (log: PromiseLog, ...args: any[]) => void;
 
   protected hookedPromise: Promise<T>;
+  protected label: string = "Awaiting promise...";
 
   constructor(promise: Promise<T>, options: LogParams, message?: string) {
     super(options, message || "Awaiting promise...");
@@ -634,17 +648,29 @@ export class PromiseLog<T = any> extends PowerLog {
     return this;
   }
 
-  public report(prefix: string = ""): PromiseLog<T> {
-    // By default, add a space after the prefix.
-    if (prefix && !prefix.endsWith(" ")) prefix += " ";
+  public report(prefixOrCallback: PrefixOrCallback<T> = ""): PromiseLog<T> {
+    if (typeof prefixOrCallback === "function") {
+      this.thenCallback = (log, value) => {
+        log.succeed(`${this.message} ${prefixOrCallback(value)}`);
+      };
 
-    this.thenCallback = (log, value) => {
-      log.succeed(`${prefix}${value}`);
-    };
+      this.catchCallback = (log, error) => {
+        log.fail(`${this.message} ${prefixOrCallback(error)}`);
+      };
+    } else {
+      let prefix = prefixOrCallback;
 
-    this.catchCallback = (log, error) => {
-      log.fail(`${prefix}${error}`);
-    };
+      // By default, add a space after the prefix.
+      if (prefix && !prefix.endsWith(" ")) prefix += " ";
+
+      this.thenCallback = (log, value) => {
+        log.succeed(`${prefix}${value}`);
+      };
+
+      this.catchCallback = (log, error) => {
+        log.fail(`${prefix}${error}`);
+      };
+    }
 
     this.hookPromise(this.hookedPromise);
 

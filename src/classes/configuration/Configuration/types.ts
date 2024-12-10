@@ -17,7 +17,6 @@ import { MogContext } from "@classes/core/MogContext/index.ts";
 // ======================================
 
 export type MogContextInput = {
-  reportGracefulExit?: boolean;
   prefixes?: Array<Prefix | PrefixOptions>;
   prefixOptions?: {
     prefixMarginRight?: number;
@@ -28,10 +27,13 @@ export type MogContextInput = {
     defaultSpinnerColor: PolymorphicColor;
     spinnerFramesPerSecond: number;
   };
+  preserveMarginOnWrap?: boolean;
+  reportGracefulExit?: boolean;
   overrideConsole?: boolean;
 };
 
 export type MogConfigStrict = {
+  preserveMarginOnWrap: boolean;
   reportGracefulExit: boolean;
   prefixes: Array<Prefix | PrefixOptions>;
   prefixOptions: {
@@ -48,6 +50,7 @@ export type MogConfigStrict = {
 };
 
 export type MogConfigNormalized = {
+  preserveMarginOnWrap: boolean;
   reportGracefulExit: boolean;
   prefixes: Array<Prefix>;
   prefixOptions: {

@@ -58,12 +58,12 @@ export function centerTitleInHr(char: string, title?: string) {
   let cols = process.stdout.columns;
 
   if (!title) return char.repeat(cols / char.length);
-  title = utils.stripAnsi(title);
+  const bareTitle = utils.stripAnsi(title);
 
   const isOdd = cols % 2 !== 0;
   if (isOdd) cols -= 1;
 
-  const eachSide = Math.floor((cols - title.length - 2) / 2);
+  const eachSide = Math.floor((cols - bareTitle.length - 2) / 2);
 
   const baseSpace = isOdd ? " " : "";
   const leftChars = char.repeat(eachSide / char.length);

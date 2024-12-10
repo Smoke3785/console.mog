@@ -1,7 +1,6 @@
 import { MogConfigStrict } from "./types.ts";
 
 export const defaultMogConfig: MogConfigStrict = {
-  reportGracefulExit: true,
   spinnerOptions: {
     defaultSpinnerColor: "yellow",
     spinnerFramesPerSecond: 10,
@@ -11,6 +10,8 @@ export const defaultMogConfig: MogConfigStrict = {
     prefixMarginRight: 1,
     joinString: "",
   },
+  preserveMarginOnWrap: true,
+  reportGracefulExit: true,
   overrideConsole: false,
   prefixes: [],
 };

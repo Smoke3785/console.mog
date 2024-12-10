@@ -4,6 +4,7 @@ import {
   logLevel,
   httpMethod,
 } from "console.mog/prefixes";
+import { anotherFunction } from "./other.ts";
 
 import mog, { createPrefix } from "console.mog";
 const thumbsUp = createPrefix({
@@ -16,6 +17,8 @@ mog(console, {
   prefixes: [mfgStamp, thumbsUp, timeStamp, logLevel, httpMethod],
 });
 
+anotherFunction();
+
 console.log("log before fail");
 // throw new Error("test error");
 
@@ -23,7 +26,7 @@ async function sleep(ms: number): Promise<string> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const randomNum = Math.floor(Math.random() * 1000);
-      reject("Explicit reject!");
+      reject("Explicit reject!\n test2");
       return;
       if (randomNum < 300) {
         // throw new Error("Random error!");
@@ -37,7 +40,13 @@ async function sleep(ms: number): Promise<string> {
   });
 }
 
-const min = 2000;
+const test = console._$log("Hello, world!");
+
+test._$log("Hello, world!")._$log("Hello, world!")._log("Hello, world!");
+
+test._log("log after fail");
+
+const min = 0;
 const promiseA = sleep(1000 + min);
 const promiseB = sleep(2000 + min);
 const promiseC = sleep(3000 + min);
@@ -56,8 +65,8 @@ rootLevel
 rootLevel.promise(promiseC, "Promise C").catch((log, error) => {
   log.fail(error);
 });
-rootLevel.promise(promiseD, "Promise D").catch((log, error) => {
-  log.fail(error);
+rootLevel.promise(promiseD, "Promise D").report((value: string) => {
+  return `Result: ${value}`;
 });
 
 // console

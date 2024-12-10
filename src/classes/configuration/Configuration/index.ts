@@ -33,6 +33,10 @@ export class Configuration implements MogConfigNormalized {
     return this.configObject.reportGracefulExit;
   }
 
+  get preserveMarginOnWrap(): boolean {
+    return this.configObject.preserveMarginOnWrap;
+  }
+
   getPrefixConfig(name: string): Record<string, unknown> | null {
     return this.prefixes.find((prefix) => prefix.name === name)?.config ?? null;
   }

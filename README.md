@@ -141,6 +141,8 @@ This project is in the first phase of development. Here's a list of milestones t
 - `console.directory()`?? - https://github.com/athityakumar/colorls#readme
 - `console.styledTable()` more control over neat looking console.
 - console.hr should accept a string that can be centered.
+- `console.format` or `toolkit` or whatever should have a `colorRange` function, that takes values and maps them to colors, like excel. This would be cool for number readouts.
+  
 
  
 
