@@ -1,4 +1,5 @@
 // Types
+import type { TableDataInput } from "@classes/core/LogData/types.ts";
 import type {
   LogVariantRegistry,
   CreateChildOptions,
@@ -6,7 +7,6 @@ import type {
   LogParams,
   LogType,
 } from "./types.ts";
-import type { TableData, TableDataInput } from "@classes/core/LogData/types.ts";
 
 // Classes
 import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
@@ -23,6 +23,7 @@ import * as utils from "@utils";
 
 // Data
 import { LINES } from "./data.ts";
+import { computed } from "@preact/signals-core";
 
 // FEATURE ADDITION:
 // https://www.npmjs.com/package/terminal-link

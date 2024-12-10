@@ -1,11 +1,12 @@
 {
   "name": "console.mog",
-  "version": "0.0.9",
+  "version": "0.0.13",
   "description": "Looksmax your console 🤫🧏",
   "repository": {
     "type": "git",
     "url": "https://github.com/Smoke3785/console.mog"
   },
+  "homepage": "https://github.com/Smoke3785/console.mog#readme",
   "license": "ISC",
   "author": "Smoke3785",
   "type": "module",

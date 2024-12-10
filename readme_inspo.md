@@ -2,6 +2,7 @@
 - https://github.com/hywax/mafl#readme
 - https://github.com/gowebly/gowebly#readme
 ## PRETTY
+
 - https://github.com/zenml-io/zenml?tab=readme-ov-file#readme
 - https://github.com/thelounge/thelounge#readme
 - https://github.com/supunlakmal/thismypc#readme
@@ -9,6 +10,7 @@
 - https://github.com/Skydio/revup#readme
 - https://github.com/owloops/updo#readme
 - https://github.com/L0garithmic/FastColabCopy#readme
+
 ## CONTENT
 - https://github.com/nhn/tui.editor#readme
 - https://github.com/strapi/strapi/

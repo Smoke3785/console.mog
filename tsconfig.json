@@ -23,20 +23,21 @@
     "strict": true /* Enable all strict type-checking options. */,
     "baseUrl": ".",
     "paths": {
-      "@state": ["./src/classes/ThothDOM/state.ts"],
-      "@features": ["./src/strapiAdapter"],
-      "@classes/*": ["./src/classes/*"],
       "@classes": ["./src/classes/index.ts"],
+      "@classes/*": ["./src/classes/*"],
+
       "@types": ["./src/@types/index.ts"],
       "@types*": ["./src/@types*"],
+
       "@utils": ["./src/utils/index.ts"],
       "@utils*": ["./src/utils*"],
+
       "@instances": ["./src/instances/index.ts"],
       "@instances/*": ["./src/instances/*"],
 
       // For testing - these will be package.json exports in prod
-      "console.mog": ["./src/index.ts"],
-      "console.mog/prefixes": ["./src/instances/prefixes/index.ts"]
+      "console.mog/prefixes": ["./src/instances/prefixes/index.ts"],
+      "console.mog": ["./src/index.ts"]
     }
   },
   "exclude": ["rollup.config.js", "node_modules/*", "cjs", "esm"],
