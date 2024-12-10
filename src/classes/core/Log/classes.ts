@@ -6,6 +6,7 @@ import type {
   VariantName,
   LogParams,
   LogType,
+  AddCtx,
 } from "./types.ts";
 
 // Classes
@@ -15,15 +16,18 @@ import LogStore from "@classes/utilities/LogStore.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
 
 // Utils
-import { createChildLog, createChildOptions } from "./utils.ts";
 import * as $R from "remeda";
 import { uid } from "uid";
 import util from "util";
-import * as utils from "@utils";
+import {
+  createChildOptions,
+  centerTitleInHr,
+  createChildLog,
+} from "./utils.ts";
 
 // Data
 import { LINES } from "./data.ts";
-import { computed } from "@preact/signals-core";
+import chalk from "chalk";
 
 // FEATURE ADDITION:
 // https://www.npmjs.com/package/terminal-link
@@ -49,6 +53,9 @@ export class Log {
 
   logData: LogData;
 
+  // User-provided context data
+  public additionalContext: AddCtx = {};
+
   constructor(options: LogParams, arguments_: any[] | any) {
     this.parent = options.parent;
     this.arguments_ = arguments_;
@@ -61,6 +68,7 @@ export class Log {
     this.uid = `${this.constructor.name}-${uid()}`;
 
     this.logData = this.revalidateData();
+    this.additionalContext = this.parent.tempContextForChild;
   }
 
   protected get siblings(): LogStore {
@@ -159,12 +167,14 @@ export class Log {
     arguments_: any[] | string = ""
   ): LogVariantRegistry[T] {
     if (this.parent instanceof DOM) {
-      return this.parent.createChild(
-        options,
-        arguments_
-      ) as LogVariantRegistry[T];
+      return this.parent
+        .withContext(this.tempContextForChild)
+        .createChild(options, arguments_) as LogVariantRegistry[T];
     }
-    return this.parent.createChild(options, arguments_);
+
+    return this.parent
+      .withContext(this.tempContextForChild)
+      .createChild(options, arguments_);
   }
 
   // CHANGED: After adding a child, set the child's childIndex.
@@ -252,6 +262,19 @@ export class Log {
     });
 
     return this.createChild(options, message);
+  }
+
+  private _tempContextForChild: AddCtx = {};
+  get tempContextForChild(): AddCtx {
+    const ctx = { ...this._tempContextForChild };
+    this._tempContextForChild = {};
+    return ctx;
+  }
+
+  public withContext(ctx: AddCtx): MogLog {
+    this._tempContextForChild = ctx;
+
+    return this;
   }
 
   // .info
@@ -402,15 +425,22 @@ export class Log {
     return this.createChild(options, message);
   }
 
+  // Not sure if this should be a _promise;
+  public promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
+    const promiseLog = new PromiseLog<T>(promise, { parent: this }, label);
+    this.addChild(promiseLog);
+    return promiseLog;
+  }
+
   // Important note: Currently this won't do anything for nested logs.
   // This seems paradigmatically correct, but it isn't intuitive.
-  newline(n: number = 1): Log {
+  public newline(n: number = 1): Log {
     this.root.newline(n);
     return this;
   }
 
-  hr(): Log {
-    this.root.hr();
+  public hr(title?: string, char?: string) {
+    this.root.hr(title, char);
     return this;
   }
 }
@@ -438,9 +468,20 @@ export class RawLog extends MogLog {
   }
 }
 
+type HorizontalRuleOptions = LogParams & {
+  character?: string;
+  title?: string;
+};
+
 export class HorizontalRule extends RawLog {
-  constructor(options: LogParams) {
-    super(options, "-".repeat(process.stdout.columns));
+  private character: string;
+  private title?: string;
+
+  constructor({ title, character = "-", ...options }: HorizontalRuleOptions) {
+    super(options, centerTitleInHr(character, title));
+
+    this.character = character;
+    this.title = title;
 
     this.revalidateData();
     this.listenForResize();
@@ -455,7 +496,7 @@ export class HorizontalRule extends RawLog {
   }
 
   private get hrString(): string {
-    return "-".repeat(process.stdout.columns);
+    return centerTitleInHr(this.character, this.title);
   }
 
   protected revalidateData(): LogData {
@@ -478,17 +519,25 @@ export class PowerLog extends Log {
   private frameIndex: number = 1;
   private _message: string;
 
+  protected readonly animSpace = "";
+
   constructor(options: LogParams, message: string) {
     super(options, message);
     this._message = message;
 
     // Register this spinner with a central manager
     SpinnerManager.register(this);
+
+    options.additionalContext &&
+      (this.additionalContext = options.additionalContext);
   }
 
   protected revalidateData(): LogData {
+    const dataWithFrame = this.resolved
+      ? this._message
+      : `${this.getCurrentFrame()}${this.animSpace}${this._message}`;
     this.logData = new LogData(this.root, this, {
-      data: `${this.getCurrentFrame()} ${this._message}`, // Prepend the spinner's frame
+      data: dataWithFrame, // Prepend the spinner's frame
       treePrefix: this.treePrefix,
       type: this.type,
       raw: this.raw,
@@ -522,6 +571,26 @@ export class PowerLog extends Log {
     this.informOfUpdate();
   }
 
+  public update(message: string): PowerLog {
+    this._message = message;
+
+    this.revalidateData();
+    this.informOfUpdate();
+    return this;
+  }
+
+  public succeed(message?: string): PowerLog {
+    return this.update(
+      `${chalk.green(`✔${this.animSpace}`)} ${message || this._message}`
+    );
+  }
+
+  public fail(message?: string): PowerLog {
+    return this.update(
+      `${chalk.red(`✖${this.animSpace}`)} ${message || this._message}`
+    );
+  }
+
   public resolve(message?: string) {
     this.resolved = true; // Mark as resolved
     if (message) {
@@ -529,15 +598,82 @@ export class PowerLog extends Log {
     }
 
     SpinnerManager.remove(this);
+    this.revalidateData();
     this.informOfUpdate();
   }
 
   // Update frame index for rendering
   public advanceFrame() {
-    utils.log("Advancing frame", this.getCurrentFrame(), this.resolved);
+    // utils.log("Advancing frame", this.getCurrentFrame(), this.resolved);
     if (!this.resolved) {
       this.nextFrame();
     }
+  }
+}
+
+export class PromiseLog<T = any> extends PowerLog {
+  protected thenCallback?: (log: PromiseLog, value: T) => void;
+  protected catchCallback?: (log: PromiseLog, error: any) => void;
+  protected finallyCallback?: (log: PromiseLog, ...args: any[]) => void;
+
+  protected hookedPromise: Promise<T>;
+
+  constructor(promise: Promise<T>, options: LogParams, message?: string) {
+    super(options, message || "Awaiting promise...");
+
+    this.hookedPromise = this.hookPromise(promise);
+  }
+
+  public then(callback: (log: PromiseLog, value: T) => void): PromiseLog<T> {
+    this.thenCallback = callback;
+    return this;
+  }
+
+  public catch(callback: (log: PromiseLog, error: any) => void): PromiseLog<T> {
+    this.catchCallback = callback;
+    return this;
+  }
+
+  public report(prefix: string = ""): PromiseLog<T> {
+    // By default, add a space after the prefix.
+    if (prefix && !prefix.endsWith(" ")) prefix += " ";
+
+    this.thenCallback = (log, value) => {
+      log.succeed(`${prefix}${value}`);
+    };
+
+    this.catchCallback = (log, error) => {
+      log.fail(`${prefix}${error}`);
+    };
+
+    this.hookPromise(this.hookedPromise);
+
+    return this;
+  }
+
+  public finally(
+    callback: (log: PromiseLog, ...args: any[]) => void
+  ): PromiseLog<T> {
+    this.finallyCallback = callback;
+    return this;
+  }
+
+  private hookPromise(promise: Promise<T>): Promise<T> {
+    promise
+      .then((value: T) => {
+        if (this.thenCallback) this.thenCallback(this, value);
+        return value;
+      })
+      .catch((error) => {
+        if (this.catchCallback) this.catchCallback(this, error);
+        return undefined;
+      })
+      .finally(() => {
+        if (this.finallyCallback) this.finallyCallback(this);
+        this.resolve();
+      });
+
+    return promise;
   }
 }
 
