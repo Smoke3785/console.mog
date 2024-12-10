@@ -120,6 +120,7 @@ This project is in the first phase of development. Here's a list of milestones t
     - When the program exits / crashes, a static version of logs should be spat into the console. Nothing fancy.
 - Determine interoperability with other logging libraries. 
 - Determine interoperability with CLI tools that handle other stuff
+- Make static mode for CI
 
 ### Future features
 - `console.promise(promise)` syntax, `console.promiseAll(promises)` syntax.
@@ -139,6 +140,7 @@ This project is in the first phase of development. Here's a list of milestones t
   - Or implicit `console.log({keyOne: "string", keyTwo: 5, keyThree: [1,2,3]})`
 - `console.directory()`?? - https://github.com/athityakumar/colorls#readme
 - `console.styledTable()` more control over neat looking console.
+- console.hr should accept a string that can be centered.
 
  
 

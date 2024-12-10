@@ -1,6 +1,11 @@
+## Snippets
+"Instead of being a write-only data blackhole, logs are now living objects that can be updated, transformed, hold their own context, etc."
+
+
 ## PRETTY +
 - https://github.com/hywax/mafl#readme
 - https://github.com/gowebly/gowebly#readme
+
 ## PRETTY
 
 - https://github.com/zenml-io/zenml?tab=readme-ov-file#readme
