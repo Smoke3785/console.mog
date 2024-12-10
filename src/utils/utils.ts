@@ -62,7 +62,8 @@ function isColorFn(color: PolymorphicColor): color is ColorFn {
   return typeof color === "function";
 }
 
-export function resolvePolymorphicColor(color: PolymorphicColor): ColorFn {
+export function resolvePolymorphicColor(color?: PolymorphicColor): ColorFn {
+  if (!color) return chalk.white;
   try {
     if (isColorFn(color)) return color;
 
