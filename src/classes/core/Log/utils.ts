@@ -6,6 +6,7 @@ import type {
 } from "./types.ts";
 import { Log, PowerLog, RawLog, MogLog } from "./index.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
+import * as utils from "@utils";
 
 export function createChildOptions<T extends VariantName = "mogLog">(
   variant: T,
@@ -55,9 +56,9 @@ export function centerTitleInHr(char: string, title?: string) {
   char = `${char}`;
 
   let cols = process.stdout.columns;
-  let charNo = cols / char.length;
 
-  if (!title) return char.repeat(charNo);
+  if (!title) return char.repeat(cols / char.length);
+  title = utils.stripAnsi(title);
 
   const isOdd = cols % 2 !== 0;
   if (isOdd) cols -= 1;
@@ -65,9 +66,8 @@ export function centerTitleInHr(char: string, title?: string) {
   const eachSide = Math.floor((cols - title.length - 2) / 2);
 
   const baseSpace = isOdd ? " " : "";
-
   const leftChars = char.repeat(eachSide / char.length);
   const rightChars = [...leftChars].reverse().join("");
 
-  return baseSpace + leftChars + ` ${title} ` + rightChars;
+  return baseSpace + [leftChars, title, rightChars].join(" ");
 }

@@ -2,9 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import util from "util";
 
-export function stripAnsi(str: string) {
-  return str.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "");
-}
+import { stripAnsi } from "./formatting.ts";
 
 // Clear dev stream
 // fs.writeFileSync(

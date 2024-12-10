@@ -50,6 +50,11 @@ export function getTimestamp({
 
   return finalComponents.join(" ");
 }
+
+export function stripAnsi(str: string) {
+  return str.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "");
+}
+
 type PadFn = (str: string, length: number) => string;
 export function resolvePadType(padType: PadType): PadFn {
   switch (padType) {
