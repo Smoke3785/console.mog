@@ -5,6 +5,7 @@ import type {
   VariantName,
   LogParams,
   LogType,
+  AddCtx,
 } from "@classes/core/Log/types.ts";
 
 // Classes
@@ -15,6 +16,7 @@ import {
   PowerLog,
   MogLog,
   Log,
+  PromiseLog,
 } from "@classes/core/Log/index.ts";
 import AverageArray from "@classes/utilities/AverageArray.ts";
 import { LogData } from "@classes/core/LogData/class.ts";
@@ -33,6 +35,8 @@ import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
 import * as utils from "@utils";
 import * as $R from "remeda";
+import { error } from "console";
+import chalk from "chalk";
 
 // ===========================================================================
 // DOM RENDERER
@@ -82,6 +86,10 @@ export class DOM {
   // Memoization keys
   private terminalDataKey: number = 0;
   private dataKey: number = 0;
+
+  // Misc flags
+  private criticalErrorOccured: boolean = false;
+  private exitReported: boolean = false;
 
   private constructor(config: Configuration) {
     this.config = config;
@@ -482,8 +490,6 @@ export class DOM {
     this.stopRenderLoop();
     this.restore();
 
-    process.stdout.write("\x1B[?1049l");
-
     if (err) console.error(err);
     process.exit(1);
   }
@@ -493,18 +499,35 @@ export class DOM {
     this.requestFullRender();
   }
 
+  get shouldReportGracefulExit(): boolean {
+    if (!this.config.reportGracefulExit) return false;
+    if (this.criticalErrorOccured) return false;
+    if (this.exitReported) return false;
+    return true;
+  }
+
   private listenForEvents() {
     // Error handling
     process.on("uncaughtException", (err) => {
+      this.criticalErrorOccured = true;
+      this.log("error", err);
       this.unmount(err);
     });
 
     // Graceful exit
     process.on("exit", () => {
+      if (this.shouldReportGracefulExit) {
+        this.exitReported = true;
+        this.log("info", chalk.blue("console.mog unmounted."));
+      }
       this.unmount();
     });
 
     process.on("SIGINT", () => {
+      if (this.shouldReportGracefulExit) {
+        this.exitReported = true;
+        this.log("info", chalk.blue("console.mog unmounted."));
+      }
       this.unmount();
     });
 
@@ -550,6 +573,18 @@ export class DOM {
     this.informOfUpdate(true);
   }
 
+  private _tempContextForChild: AddCtx = {};
+  get tempContextForChild(): AddCtx {
+    const ctx = { ...this._tempContextForChild };
+    this._tempContextForChild = {};
+    return ctx;
+  }
+
+  public withContext(ctx: AddCtx): DOM {
+    this._tempContextForChild = ctx;
+    return this;
+  }
+
   private getRootOrGroup(): MogLog | DOM {
     return $R.last(this.groupStack) || this;
   }
@@ -561,9 +596,11 @@ export class DOM {
     this.rawLog("debug", "\n".repeat(lineNo));
   }
 
-  public hr() {
+  public hr(title?: string, char?: string) {
     const hrLog = new HorizontalRule({
+      character: char,
       parent: this,
+      title,
     });
 
     return this.addChild(hrLog);
@@ -572,6 +609,11 @@ export class DOM {
   public table(tableDataInput: TableDataInput) {
     const tableLog = new TableLog({ parent: this }, tableDataInput);
     return this.addChild(tableLog);
+  }
+
+  public promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
+    const promiseLog = new PromiseLog<T>(promise, { parent: this }, label);
+    return this.addChild(promiseLog);
   }
 
   public group(label: string = "") {
@@ -595,6 +637,7 @@ export class DOM {
         return parent[`_$${level}`](message);
       }
     }
+
     const options = createChildOptions("powerLog", {
       parent: this.getRootOrGroup(),
       type: "log",
