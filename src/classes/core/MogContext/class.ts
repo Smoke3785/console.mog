@@ -9,9 +9,13 @@ import {
   AddCtx,
 } from "@classes/core/Log/index.ts";
 import chalk from "chalk";
+import Toolkit from "@classes/Toolkit/class.ts";
 
 export type MogContextConfigObject = MogContextInput & {};
 export class MogContext implements Console {
+  public static toolkit = Toolkit.getInstance();
+  public toolkit = Toolkit.getInstance();
+
   public prototype: MogContext = this;
   public Console = console.Console;
 

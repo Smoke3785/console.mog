@@ -80,6 +80,7 @@ This project is in alpha (💪🐺). It is not ready for production use and will
 - Advanced tree and table rendering for nested or tabular data structures.
 
 
+
 #### 🎯 Style + Substance
 - Built-in integrations to send your logs whereever they need to go, and a powerful API to build your own. Built in:
   - Filesystem
@@ -112,6 +113,11 @@ This project is in the first phase of development. Here's a list of milestones t
   - `console.count`
 - Make native fallbacks for when this is run in the browser.
 - Make readme
+
+- **NOTE:** Many calculations should be done on a per-line basis, not a per-log basis - aggressive caching will be required.
+- It appears that something related to the line splitting doesn't re-calculate until a full re-render...
+- There needs to be another check for if a smart-render will take the rendered content outside the bounds of the screen. If so, it must dumb-render once to re-align content to the bottom.
+
 
 ### Critical for literally anything useful
 - Performance improvements. Obviously nowhere near as fast as native implementation, but there's *tremendous* room for performance improvements.
