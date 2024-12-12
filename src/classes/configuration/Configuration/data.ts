@@ -10,6 +10,7 @@ export const defaultMogConfig: MogConfigStrict = {
     prefixMarginRight: 1,
     joinString: "",
   },
+  experimentalSmartRender: false,
   preserveMarginOnWrap: true,
   reportGracefulExit: true,
   overrideConsole: false,

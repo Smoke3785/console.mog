@@ -1,5 +1,6 @@
 // Types
 import type { TableDataInput } from "@classes/core/LogData/types.ts";
+import type { ShouldFullRenderCtx } from "./types.ts";
 import type {
   CreateChildOptions,
   VariantName,
@@ -33,9 +34,7 @@ import { createChildLog, createChildOptions } from "@classes/core/Log/utils.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
 import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
-import * as utils from "@utils";
 import * as $R from "remeda";
-import { error } from "console";
 import chalk from "chalk";
 
 // ===========================================================================
@@ -254,20 +253,30 @@ export class DOM {
     this.writeData(buffer);
   }
 
+  private shouldFullRender({ specialKey }: ShouldFullRenderCtx): boolean {
+    // If we haven't enabled the experimental smart render, we should always do a full render
+    if (!this.config.experimentalSmartRender) return true;
+    if (this.fullRenderRequested) return true;
+    if (specialKey === "final") return true;
+    if (this.isFirstRender) return true;
+
+    return false;
+  }
+
   /**
    * Render the entire tree by collecting data in a stable, top-down order.
    */
   private render(specialKey?: string) {
     this.initiateRender();
 
-    const full = this.isFirstRender || this.fullRenderRequested;
+    const full = this.shouldFullRender({ specialKey });
     const tHeight = process.stdout.rows;
 
     // Metrics
     const renderStartTime = performance.now();
     log.render(this.framesRendered, this.renderTimes);
 
-    if (full || specialKey === "final") {
+    if (full) {
       this.dumbRender(true);
       return this.finalizeRender(full, renderStartTime);
     }
@@ -481,7 +490,7 @@ export class DOM {
     this.startRenderLoop();
   }
 
-  private unmount(err?: Error) {
+  public unmount(err?: Error, exit?: boolean) {
     this.showCursor();
 
     // NOTE: TODO: This doesn't seem to work. The goal is to log the final render so that the
@@ -491,7 +500,7 @@ export class DOM {
     this.restore();
 
     if (err) console.error(err);
-    process.exit(1);
+    if (exit) process.exit();
   }
 
   private handleResize(): void {

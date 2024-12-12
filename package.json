@@ -1,6 +1,6 @@
 {
   "name": "console.mog",
-  "version": "0.0.38",
+  "version": "0.0.40",
   "description": "Looksmax your console 🤫🧏",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   "license": "ISC",
   "author": "Smoke3785",
   "type": "module",
-  "main": "./cjs/index.cjs",
+  "main": "./esm/index.mjs",
   "module": "./esm/index.mjs",
   "types": "./esm/index.d.ts",
   "exports": {
@@ -22,26 +22,6 @@
       "require": {
         "types": "./cjs/index.d.ts",
         "default": "./cjs/index.cjs"
-      }
-    },
-    "./server": {
-      "import": {
-        "types": "./esm/server.d.ts",
-        "default": "./esm/server.mjs"
-      },
-      "require": {
-        "types": "./cjs/server.d.ts",
-        "default": "./cjs/server.cjs"
-      }
-    },
-    "./client": {
-      "import": {
-        "types": "./esm/client.d.ts",
-        "default": "./esm/client.mjs"
-      },
-      "require": {
-        "types": "./cjs/client.d.ts",
-        "default": "./cjs/client.cjs"
       }
     }
   },

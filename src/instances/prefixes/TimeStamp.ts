@@ -6,6 +6,7 @@ import { Prefix, PrefixOptions } from "@classes/core/Prefix/index.ts";
 
 // Utils
 import { getTimestamp } from "@utils";
+import chalk from "chalk";
 
 type TimestampOptions = PrefixOptions & {
   components: TimeStampComponents | TimeStampComponents[];
@@ -45,11 +46,13 @@ export class TimeStamp extends Prefix {
       options.timestampMs = this.instantiationTime;
     }
 
-    return `[${getTimestamp(options)}]`;
+    const str = getTimestamp(options);
+
+    return `${this.getColorFn()(str)} `;
   }
 }
 
 export const timeStamp = new TimeStamp({
   components: ["time"],
-  color: "gray",
+  color: chalk.gray,
 });

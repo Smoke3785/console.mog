@@ -43,6 +43,10 @@ export class MogContext implements Console {
     return {};
   }
 
+  public unmount() {
+    this.DOM.unmount();
+  }
+
   // NOTE: TODO: This entire system needs to be typed properly
   public withContext(ctx: AddCtx): MogContext {
     this.DOM.withContext(ctx);

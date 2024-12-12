@@ -29,6 +29,10 @@ export class Configuration implements MogConfigNormalized {
     return {};
   }
 
+  get experimentalSmartRender(): boolean {
+    return this.configObject.experimentalSmartRender;
+  }
+
   get reportGracefulExit(): boolean {
     return this.configObject.reportGracefulExit;
   }
