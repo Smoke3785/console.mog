@@ -35,18 +35,8 @@ mog(console); // And you're done!
 
 <div align="center">
 
-```tsx
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-// PRETTY GIF // PRETTY GIF // PRETTY GIF // PRETTY GIF 
-```
+![Pretty GIF](https://github.com/Smoke3785/console.mog/blob/master/readme-assets/Screenshot%202024-12-12%20at%204.37.42%E2%80%AFPM.png?raw=true)
+
 </div>
 
 > [!WARNING]  
