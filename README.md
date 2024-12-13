@@ -118,6 +118,9 @@ This project is in the first phase of development. Here's a list of milestones t
 - Determine interoperability with CLI tools that handle other stuff
 - Make static mode for CI
 
+### Known bugs
+- logs created by piping a stream to console.mog() aren't included when the console re-renders on resize. Subsequent messages will restore the output, though...
+
 ### Future features
 - `console.promise(promise)` syntax, `console.promiseAll(promises)` syntax.
 - Render boxes, links, rainbow text.

@@ -15,10 +15,10 @@ const thumbsUp = createPrefix({
   value: "[👍]",
 });
 
-mog(console, {
-  overrideConsole: true,
-  prefixes: [timeStamp, logLevel, httpMethod],
-});
+// mog(console, {
+//   overrideConsole: true,
+//   prefixes: [timeStamp, logLevel, httpMethod],
+// });
 // async function blab() {
 
 //   console.hr(chalk.bold.hex("#00ace0")("We just mogged our console!"), "=");
@@ -161,9 +161,26 @@ mog(console, {
 
 // blab();
 
-const pipe = console.createPipe((data) => {
-  const lines = data.trim().split("\n");
-  return lines.map((line: string) => ({ method: "error", data: line }));
+// const pipe = console.createPipe((data) => {
+//   const lines = data.trim().split("\n");
+//   return lines.map((line: string) => ({ method: "error", data: line }));
+// });
+
+// $`ping google.com`.pipe(pipe);
+
+const loggerA = new MogContext({
+  prefixes: [createPrefix({ value: "[A]", color: "green" })],
+});
+const loggerB = new MogContext({
+  prefixes: [createPrefix({ value: "[B]", color: "yellow" })],
 });
 
-$`ping google.com`.pipe(pipe);
+setInterval(() => {
+  loggerA.log("Hello, World! 1");
+}, 2000);
+
+setTimeout(() => {
+  setInterval(() => {
+    loggerB.log("Hello, World! 2");
+  }, 2000);
+}, 1000);

@@ -1,3 +1,4 @@
+import { MogContext } from "@classes/core/MogContext/class.ts";
 import { Log, RawLog, PowerLog, MogLog } from "./index.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
 
@@ -15,11 +16,12 @@ export type AddCtx = Record<string, any>;
 export type LogType = "log" | "warn" | "error" | "info" | "debug" | "table";
 export type LogParams = {
   additionalContext?: AddCtx;
+  context: MogContext;
   parent: Log | DOM;
   type?: LogType;
 };
 
 export type CreateChildOptions<T extends VariantName = "mogLog"> = {
-  variant: T;
   logParams: LogParams;
+  variant: T;
 };

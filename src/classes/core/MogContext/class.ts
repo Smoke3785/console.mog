@@ -21,12 +21,12 @@ import chalk from "chalk"; // This will be deprecated once the toolkit is fully 
 export type MogContextConfigObject = MogContextInput & {};
 export class MogContext implements Console {
   public static toolkit = Toolkit.getInstance();
-  public toolkit = Toolkit.getInstance();
+  public toolkit = MogContext.toolkit;
 
   public prototype: MogContext = this;
   public Console = console.Console;
 
-  private configuration: Configuration;
+  public configuration: Configuration;
   private originalConsole: Console;
   private DOM: DOM;
 
@@ -70,7 +70,7 @@ export class MogContext implements Console {
   }
 
   public createPipe(middleware: PipeMiddleware) {
-    return this.DOM.createPipe(middleware);
+    return this.DOM.createPipe(this, middleware);
   }
 
   // =================================================
@@ -80,91 +80,91 @@ export class MogContext implements Console {
   // .log
 
   log(...args: any[]): MogLog {
-    return this.DOM.log("log", ...args);
+    return this.DOM.log(this, "log", ...args);
   }
 
   _log(...args: any[]): MogLog {
-    return this.DOM._log("log", ...args);
+    return this.DOM._log(this, "log", ...args);
   }
 
   $log(...args: any[]): PowerLog {
-    return this.DOM.$log("log", ...args);
+    return this.DOM.$log(this, "log", ...args);
   }
 
   _$log(...args: any[]): MogLog {
-    return this.DOM._$log("log", ...args);
+    return this.DOM._$log(this, "log", ...args);
   }
 
   // .info
 
   info(...args: any[]): MogLog {
-    return this.DOM.log("info", ...args);
+    return this.DOM.log(this, "info", ...args);
   }
 
   _info(...args: any[]): MogLog {
-    return this.DOM._log("info", ...args);
+    return this.DOM._log(this, "info", ...args);
   }
 
   $info(...args: any[]): PowerLog {
-    return this.DOM.$log("info", ...args);
+    return this.DOM.$log(this, "info", ...args);
   }
 
   _$info(...args: any[]): MogLog {
-    return this.DOM._$log("info", ...args);
+    return this.DOM._$log(this, "info", ...args);
   }
 
   // .warn
 
   warn(...args: any[]): MogLog {
-    return this.DOM.log("warn", ...args);
+    return this.DOM.log(this, "warn", ...args);
   }
 
   _warn(...args: any[]): MogLog {
-    return this.DOM._log("warn", ...args);
+    return this.DOM._log(this, "warn", ...args);
   }
 
   $warn(...args: any[]): PowerLog {
-    return this.DOM.$log("warn", ...args);
+    return this.DOM.$log(this, "warn", ...args);
   }
 
   _$warn(...args: any[]): MogLog {
-    return this.DOM._$log("warn", ...args);
+    return this.DOM._$log(this, "warn", ...args);
   }
 
   // .error
 
   error(...args: any[]): MogLog {
-    return this.DOM.log("error", ...args);
+    return this.DOM.log(this, "error", ...args);
   }
 
   _error(...args: any[]): MogLog {
-    return this.DOM._log("error", ...args);
+    return this.DOM._log(this, "error", ...args);
   }
 
   $error(...args: any[]): PowerLog {
-    return this.DOM.$log("error", ...args);
+    return this.DOM.$log(this, "error", ...args);
   }
 
   _$error(...args: any[]): MogLog {
-    return this.DOM._$log("error", ...args);
+    return this.DOM._$log(this, "error", ...args);
   }
 
   // .debug
 
   debug(...args: any[]): MogLog {
-    return this.DOM.log("debug", ...args);
+    return this.DOM.log(this, "debug", ...args);
   }
 
   _debug(...args: any[]): MogLog {
-    return this.DOM._log("debug", ...args);
+    return this.DOM._log(this, "debug", ...args);
   }
 
   $debug(...args: any[]): PowerLog {
-    return this.DOM.$log("debug", ...args);
+    return this.DOM.$log(this, "debug", ...args);
   }
 
   _$debug(...args: any[]): MogLog {
-    return this.DOM._$log("debug", ...args);
+    return this.DOM._$log(this, "debug", ...args);
   }
 
   newline(n: number = 1): MogContext {
@@ -173,11 +173,11 @@ export class MogContext implements Console {
   }
 
   promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
-    return this.DOM.promise<T>(promise, label);
+    return this.DOM.promise<T>(this, promise, label);
   }
 
   hr(title?: string, char?: string): MogContext {
-    this.DOM.hr(title, char);
+    this.DOM.hr(this, title, char);
     return this;
   }
 
@@ -213,11 +213,11 @@ export class MogContext implements Console {
   // Groups seem like an uglier version of console._log(). Can I just use that?
   // ===============-----------
   group(label?: string): MogLog {
-    return this.DOM.group(label);
+    return this.DOM.group(this, label);
   }
 
   groupCollapsed(label?: string): MogLog {
-    return this.DOM.group(label);
+    return this.DOM.group(this, label);
   }
 
   groupEnd(): MogContext {
@@ -242,7 +242,7 @@ export class MogContext implements Console {
   // }
 
   table(tabularData?: any, styles: any = {}): TableLog {
-    return this.DOM.table({
+    return this.DOM.table(this, {
       headers: undefined,
       data: tabularData,
       type: "unknown",

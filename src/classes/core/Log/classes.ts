@@ -28,6 +28,7 @@ import {
 // Data
 import { LINES } from "./data.ts";
 import chalk from "chalk";
+import { MogContext } from "../MogContext/index.ts";
 
 // FEATURE ADDITION:
 // https://www.npmjs.com/package/terminal-link
@@ -51,6 +52,7 @@ export class Log {
   message: string = "";
   arguments_: any[];
 
+  context: MogContext;
   logData: LogData;
 
   // User-provided context data
@@ -61,6 +63,8 @@ export class Log {
     this.arguments_ = arguments_;
     this.root = this.parent.root;
     this.depth = this.parent.depth + 1;
+
+    this.context = options.context;
 
     // If anything causes a problem, it will be this!x
     this.message = this.formatArgs(arguments_);
@@ -77,6 +81,10 @@ export class Log {
     } else {
       return util.format(args);
     }
+  }
+
+  public get config() {
+    return this.context.configuration;
   }
 
   protected get siblings(): LogStore {
@@ -236,9 +244,21 @@ export class Log {
   // Logging + PowerLogging methods for each type
   // ===============-----------
 
+  protected createChildOptions<T extends VariantName>(
+    variant: T,
+    logParams: Omit<LogParams, "context"> & { context?: MogContext }
+  ): CreateChildOptions<T> {
+    logParams.context = this.context;
+
+    return {
+      logParams: logParams as LogParams,
+      variant: variant as T,
+    };
+  }
+
   // .log
   public log(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "log",
     });
@@ -247,7 +267,7 @@ export class Log {
   }
 
   public _log(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "log",
     });
@@ -256,7 +276,7 @@ export class Log {
   }
 
   public $log(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "log",
     });
@@ -265,7 +285,7 @@ export class Log {
   }
 
   public _$log(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "log",
     });
@@ -288,7 +308,7 @@ export class Log {
 
   // .info
   public info(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "info",
     });
@@ -297,7 +317,7 @@ export class Log {
   }
 
   public _info(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "info",
     });
@@ -306,7 +326,7 @@ export class Log {
   }
 
   public $info(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "info",
     });
@@ -315,7 +335,7 @@ export class Log {
   }
 
   public _$info(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "info",
     });
@@ -325,7 +345,7 @@ export class Log {
 
   // .warn
   public warn(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "warn",
     });
@@ -334,7 +354,7 @@ export class Log {
   }
 
   public _warn(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "warn",
     });
@@ -343,7 +363,7 @@ export class Log {
   }
 
   public $warn(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "warn",
     });
@@ -352,7 +372,7 @@ export class Log {
   }
 
   public _$warn(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "warn",
     });
@@ -362,7 +382,7 @@ export class Log {
 
   // .error
   public error(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "error",
     });
@@ -371,7 +391,7 @@ export class Log {
   }
 
   public _error(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "error",
     });
@@ -380,7 +400,7 @@ export class Log {
   }
 
   public $error(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "error",
     });
@@ -389,7 +409,7 @@ export class Log {
   }
 
   public _$error(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "error",
     });
@@ -399,7 +419,7 @@ export class Log {
 
   // .debug
   public debug(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "debug",
     });
@@ -408,7 +428,7 @@ export class Log {
   }
 
   public _debug(...args: any[]): MogLog {
-    const options = createChildOptions("mogLog", {
+    const options = this.createChildOptions("mogLog", {
       parent: this,
       type: "debug",
     });
@@ -417,7 +437,7 @@ export class Log {
   }
 
   public $debug(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "debug",
     });
@@ -426,7 +446,7 @@ export class Log {
   }
 
   public _$debug(message: string): PowerLog {
-    const options = createChildOptions("powerLog", {
+    const options = this.createChildOptions("powerLog", {
       parent: this,
       type: "debug",
     });
@@ -436,7 +456,11 @@ export class Log {
 
   // Not sure if this should be a _promise;
   public promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
-    const promiseLog = new PromiseLog<T>(promise, { parent: this }, label);
+    const promiseLog = new PromiseLog<T>(
+      promise,
+      { context: this.context, parent: this },
+      label
+    );
     this.addChild(promiseLog);
     return promiseLog;
   }
@@ -449,7 +473,7 @@ export class Log {
   }
 
   public hr(title?: string, char?: string) {
-    this.root.hr(title, char);
+    this.root.hr(this.context, title, char);
     return this;
   }
 }
@@ -461,7 +485,7 @@ export class MogLog extends Log {
 }
 
 export class RawLog extends MogLog {
-  parent: DOM;
+  declare parent: DOM;
 
   constructor(options: LogParams, arguments_: any[] | any) {
     super(options, arguments_);
@@ -555,12 +579,8 @@ export class PowerLog extends Log {
     return this.logData;
   }
 
-  private get config() {
-    return this.root.config.spinnerOptions;
-  }
-
   private getCurrentFrame(): string {
-    const colorFn = this.config.defaultSpinnerColor;
+    const colorFn = this.config.spinnerOptions.defaultSpinnerColor;
     const index = this.frameIndex % frames.length;
     return `${colorFn(frames[index])} `;
   }

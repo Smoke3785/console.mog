@@ -13,12 +13,13 @@ import type {
 import { SpinnerManager } from "@classes/core/SpinnerManager/index.ts";
 import {
   HorizontalRule,
+  PromiseLog,
   TableLog,
   PowerLog,
   MogLog,
   Log,
-  PromiseLog,
 } from "@classes/core/Log/index.ts";
+import { MogContext } from "@classes/core/MogContext/index.ts";
 import AverageArray from "@classes/utilities/AverageArray.ts";
 import { LogData } from "@classes/core/LogData/class.ts";
 import LogStore from "@classes/utilities/LogStore.ts";
@@ -100,6 +101,8 @@ export class DOM {
   private exitReported: boolean = false;
 
   private constructor(config: Configuration) {
+    if (DOM.instance) throw new Error("DOM instance already exists.");
+
     this.config = config;
 
     // Override console functionality
@@ -120,6 +123,10 @@ export class DOM {
 
   public setFramerate(framesPerSecond: number) {
     this.framerate = 1000 / framesPerSecond;
+  }
+
+  get rawContext(): MogContext {
+    return new MogContext({});
   }
 
   private renderIfNecessary() {
@@ -163,14 +170,14 @@ export class DOM {
     process.stdout.write("\x1Bc");
   }
 
-  public createPipe(middleware: PipeMiddleware) {
+  public createPipe(context: MogContext, middleware: PipeMiddleware) {
     const pipe = new Writable({
       write: (chunk, encoding, callback) => {
         const formatted = middleware(chunk.toString());
         const logs = normalizePipeData(formatted);
 
         for (const { method, data } of logs) {
-          this.log(method, data);
+          this.log(context, method, data);
         }
 
         callback();
@@ -477,14 +484,14 @@ export class DOM {
       const logger = this[method];
 
       if (stream === "stdout") {
-        logger("debug", data);
-        this.log("debug", data);
+        // logger(this.rawContext, "debug", data);
+        this.log(this.rawContext, "debug", data);
         log.log(data);
       }
 
       if (stream === "stderr") {
-        logger("error", data);
-        this.log("error", data);
+        // logger(this.rawContext, "error", data);
+        this.log(this.rawContext, "error", data);
         log.log(data);
       }
     });
@@ -552,11 +559,11 @@ export class DOM {
     return true;
   }
 
-  private listenForEvents() {
+  public listenForEvents() {
     // Error handling
     process.on("uncaughtException", (err) => {
       this.criticalErrorOccured = true;
-      this.log("error", err);
+      this.log(this.rawContext, "error", err);
       this.unmount(err);
     });
 
@@ -564,7 +571,7 @@ export class DOM {
     process.on("exit", () => {
       if (this.shouldReportGracefulExit) {
         this.exitReported = true;
-        this.log("info", chalk.blue("console.mog unmounted."));
+        this.log(this.rawContext, "info", chalk.blue("console.mog unmounted."));
       }
       this.unmount();
     });
@@ -572,7 +579,7 @@ export class DOM {
     process.on("SIGINT", () => {
       if (this.shouldReportGracefulExit) {
         this.exitReported = true;
-        this.log("info", chalk.blue("console.mog unmounted."));
+        this.log(this.rawContext, "info", chalk.blue("console.mog unmounted."));
       }
       this.unmount();
     });
@@ -586,7 +593,7 @@ export class DOM {
   // ======================
   // API FOR LOGGING
   // =====-----
-  get logParams(): LogParams {
+  get logParams(): Omit<LogParams, "context"> {
     return {
       parent: this,
     };
@@ -604,6 +611,7 @@ export class DOM {
 
   public rawLog(type: "debug" | "error" = "debug", data: any) {
     const options = createChildOptions("rawLog", {
+      context: new MogContext({}),
       parent: this,
       type: type,
     });
@@ -642,28 +650,37 @@ export class DOM {
     this.rawLog("debug", "\n".repeat(lineNo));
   }
 
-  public hr(title?: string, char?: string) {
+  public hr(context: MogContext, title?: string, char?: string) {
     const hrLog = new HorizontalRule({
       character: char,
       parent: this,
+      context,
       title,
     });
 
     return this.addChild(hrLog);
   }
 
-  public table(tableDataInput: TableDataInput) {
-    const tableLog = new TableLog({ parent: this }, tableDataInput);
+  public table(context: MogContext, tableDataInput: TableDataInput) {
+    const tableLog = new TableLog({ context, parent: this }, tableDataInput);
     return this.addChild(tableLog);
   }
 
-  public promise<T>(promise: Promise<T>, label?: string): PromiseLog<T> {
-    const promiseLog = new PromiseLog<T>(promise, { parent: this }, label);
+  public promise<T>(
+    context: MogContext,
+    promise: Promise<T>,
+    label?: string
+  ): PromiseLog<T> {
+    const promiseLog = new PromiseLog<T>(
+      promise,
+      { context, parent: this },
+      label
+    );
     return this.addChild(promiseLog);
   }
 
-  public group(label: string = "") {
-    const groupLabel = this.log("log", label);
+  public group(context: MogContext, label: string = "") {
+    const groupLabel = this.log(context, "log", label);
     this.groupStack.push(groupLabel);
 
     return groupLabel;
@@ -674,7 +691,11 @@ export class DOM {
     return;
   }
 
-  public $log(level: LogType = "log", message: string = ""): PowerLog {
+  public $log(
+    context: MogContext,
+    level: LogType = "log",
+    message: string = ""
+  ): PowerLog {
     const parent = this.getRootOrGroup();
 
     handleGrouping: {
@@ -687,13 +708,14 @@ export class DOM {
     const options = createChildOptions("powerLog", {
       parent: this.getRootOrGroup(),
       type: "log",
+      context,
     });
 
     const log = createChildLog(this, options, message);
     return this.addChild(log);
   }
 
-  public log(level: LogType = "log", ...args: any[]) {
+  public log(context: MogContext, level: LogType = "log", ...args: any[]) {
     const parent = this.getRootOrGroup();
 
     handleGrouping: {
@@ -706,6 +728,7 @@ export class DOM {
 
     const options = createChildOptions("mogLog", {
       type: level,
+      context,
       parent,
     });
 
@@ -713,11 +736,15 @@ export class DOM {
     return this.addChild(log);
   }
 
-  public _log(level: LogType = "log", ...args: any[]) {
-    return this.log(level, ...args);
+  public _log(context: MogContext, level: LogType = "log", ...args: any[]) {
+    return this.log(context, level, ...args);
   }
 
-  public _$log(level: LogType = "log", message: string = "") {
-    return this.$log(level, message);
+  public _$log(
+    context: MogContext,
+    level: LogType = "log",
+    message: string = ""
+  ) {
+    return this.$log(context, level, message);
   }
 }

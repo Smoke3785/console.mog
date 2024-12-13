@@ -106,7 +106,7 @@ export class LogData {
   }
 
   private getPrefixValues(): string[] {
-    return this.root.config.prefixes.map((prefix) => {
+    return this.config.prefixes.map((prefix) => {
       return prefix.getValue(this);
     });
   }
@@ -134,6 +134,10 @@ export class LogData {
     return table.toString();
   }
 
+  get config() {
+    return this.log.config;
+  }
+
   @memoizeDecorator()
   private memoizedToString(dataKey: number): string {
     const prefixComponents: Array<string | undefined | null> = [];
@@ -141,7 +145,7 @@ export class LogData {
 
     // Get configuration
     const { joinString, prefixMarginRight, applyToEmptyLogs } =
-      this.root.config.prefixOptions;
+      this.config.prefixOptions;
     const spacing = " ".repeat(prefixMarginRight);
 
     // Destructure data

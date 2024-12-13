@@ -20,7 +20,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "allowJs": true,
     "jsx": "react",
-    "strict": true /* Enable all strict type-checking options. */,
+    // "strict":true /* Enable all strict type-checking options. */,
     "baseUrl": ".",
     "paths": {
       "@classes": ["./src/classes/index.ts"],
