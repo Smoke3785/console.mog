@@ -54,10 +54,11 @@ export function createChildLog<T extends VariantName>(
 
 export function centerTitleInHr(char: string, title?: string) {
   char = `${char}`;
+  const bareChar = utils.stripAnsi(char);
 
   let cols = process.stdout.columns;
 
-  if (!title) return char.repeat(cols / char.length);
+  if (!title) return char.repeat(cols / bareChar.length);
   const bareTitle = utils.stripAnsi(title);
 
   const isOdd = cols % 2 !== 0;
@@ -66,7 +67,7 @@ export function centerTitleInHr(char: string, title?: string) {
   const eachSide = Math.floor((cols - bareTitle.length - 2) / 2);
 
   const baseSpace = isOdd ? " " : "";
-  const leftChars = char.repeat(eachSide / char.length);
+  const leftChars = char.repeat(eachSide / bareChar.length);
   const rightChars = [...leftChars].reverse().join("");
 
   return baseSpace + [leftChars, title, rightChars].join(" ");
