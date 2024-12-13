@@ -166,11 +166,10 @@ const thumbsUp = createPrefix({
 //   return lines.map((line: string) => ({ method: "error", data: line }));
 // });
 
-// $`ping google.com`.pipe(pipe);
-
 const loggerA = new MogContext({
   prefixes: [createPrefix({ value: "[A]", color: "green" })],
 });
+$`ping google.com`.pipe(loggerA.pipe);
 const loggerB = new MogContext({
   prefixes: [createPrefix({ value: "[B]", color: "yellow" })],
 });

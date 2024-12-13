@@ -190,7 +190,7 @@ export class DOM {
   public get pipe(): Writable {
     const pipe = new Writable({
       write: (chunk, encoding, callback) => {
-        this.rawLog("debug", chunk.toString());
+        this.rawLog("debug", removeTrailingNewLine(chunk.toString()));
         callback();
       },
     });
