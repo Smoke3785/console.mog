@@ -1,6 +1,6 @@
 // Types
+import type { ShouldFullRenderCtx, PipeMiddleware } from "./types.ts";
 import type { TableDataInput } from "@classes/core/LogData/types.ts";
-import type { ShouldFullRenderCtx } from "./types.ts";
 import type {
   CreateChildOptions,
   VariantName,
@@ -32,10 +32,19 @@ import * as log from "./logging.ts";
 // Utils
 import { createChildLog, createChildOptions } from "@classes/core/Log/utils.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
+import { normalizePipeData } from "./utils.ts";
 import { memoizeDecorator } from "memoize";
 import patchConsole from "patch-console";
+import { Writable } from "stream";
+import * as util from "util";
 import * as $R from "remeda";
 import chalk from "chalk";
+import {
+  removeTrailingNewLine,
+  showAllAnsi,
+  showAllCharacters,
+  showNewLines,
+} from "@utils";
 
 // ===========================================================================
 // DOM RENDERER
@@ -152,6 +161,34 @@ export class DOM {
 
   private hardClearConsole() {
     process.stdout.write("\x1Bc");
+  }
+
+  public createPipe(middleware: PipeMiddleware) {
+    const pipe = new Writable({
+      write: (chunk, encoding, callback) => {
+        const formatted = middleware(chunk.toString());
+        const logs = normalizePipeData(formatted);
+
+        for (const { method, data } of logs) {
+          this.log(method, data);
+        }
+
+        callback();
+      },
+    });
+
+    return pipe;
+  }
+
+  public get pipe(): Writable {
+    const pipe = new Writable({
+      write: (chunk, encoding, callback) => {
+        this.rawLog("debug", chunk.toString());
+        callback();
+      },
+    });
+
+    return pipe;
   }
 
   /**
@@ -499,7 +536,7 @@ export class DOM {
     this.stopRenderLoop();
     this.restore();
 
-    if (err) console.error(err);
+    if (err) this.writeData(util.format(err));
     if (exit) process.exit();
   }
 
@@ -509,7 +546,7 @@ export class DOM {
   }
 
   get shouldReportGracefulExit(): boolean {
-    if (!this.config.reportGracefulExit) return false;
+    if (this.config.reportGracefulExit !== true) return false;
     if (this.criticalErrorOccured) return false;
     if (this.exitReported) return false;
     return true;

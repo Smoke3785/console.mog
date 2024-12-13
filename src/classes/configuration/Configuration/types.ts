@@ -30,14 +30,18 @@ export type MogContextInput = {
   // Boolean options
   experimentalSmartRender?: boolean;
   preserveMarginOnWrap?: boolean;
+
   reportGracefulExit?: boolean;
   overrideConsole?: boolean;
+  forceColor?: boolean;
 };
 
 export type MogConfigStrict = {
   experimentalSmartRender: boolean;
   preserveMarginOnWrap: boolean;
   reportGracefulExit: boolean;
+  overrideConsole: boolean;
+  forceColor: boolean;
   prefixes: Array<Prefix | PrefixOptions>;
   prefixOptions: {
     prefixMarginRight: number;
@@ -48,14 +52,15 @@ export type MogConfigStrict = {
     defaultSpinnerColor: PolymorphicColor;
     spinnerFramesPerSecond: number;
   };
-
-  overrideConsole: boolean;
 };
 
 export type MogConfigNormalized = {
   experimentalSmartRender: boolean;
   preserveMarginOnWrap: boolean;
   reportGracefulExit: boolean;
+  overrideConsole: boolean;
+  forceColor: boolean;
+
   prefixes: Array<Prefix>;
   prefixOptions: {
     applyToEmptyLogs?: boolean;
@@ -66,8 +71,6 @@ export type MogConfigNormalized = {
     spinnerFramesPerSecond: number;
     defaultSpinnerColor: ColorFn;
   };
-
-  overrideConsole: boolean;
 };
 
 // ======================================

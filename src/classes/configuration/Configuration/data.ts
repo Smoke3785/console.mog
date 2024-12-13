@@ -14,5 +14,6 @@ export const defaultMogConfig: MogConfigStrict = {
   preserveMarginOnWrap: true,
   reportGracefulExit: true,
   overrideConsole: false,
+  forceColor: true,
   prefixes: [],
 };

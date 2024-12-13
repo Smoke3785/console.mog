@@ -83,3 +83,20 @@ export function formatMs(ms: number): string {
 
   return final;
 }
+
+export function removeTrailingNewLine(str: string) {
+  return str.trimEnd().replace(/\n$/, "");
+}
+
+export function showAllAnsi(str: string) {
+  return str.replace(/\x1B/g, "\\x1B");
+}
+
+// Ansi + newlines
+export function showAllCharacters(str: string) {
+  return str.replace(/\n/g, "\\n").replace(/\x1B/g, "\\x1B");
+}
+
+export function showNewLines(str: string) {
+  return str.replace(/\n/g, "\\n");
+}

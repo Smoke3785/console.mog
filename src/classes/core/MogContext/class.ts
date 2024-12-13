@@ -1,6 +1,12 @@
+// Types
+import type { PipeMiddleware } from "@classes/core/DOM/types.ts";
+import type { Writable } from "stream";
+
+// Classes
 import { MogContextInput } from "@classes/configuration/Configuration/types.ts";
 import { Configuration } from "@classes/configuration/Configuration/index.ts";
 import { DOM } from "@classes/core/DOM/class.ts";
+import Toolkit from "@classes/Toolkit/class.ts";
 import {
   PromiseLog,
   TableLog,
@@ -8,8 +14,9 @@ import {
   MogLog,
   AddCtx,
 } from "@classes/core/Log/index.ts";
-import chalk from "chalk";
-import Toolkit from "@classes/Toolkit/class.ts";
+
+// Utils
+import chalk from "chalk"; // This will be deprecated once the toolkit is fully implemented
 
 export type MogContextConfigObject = MogContextInput & {};
 export class MogContext implements Console {
@@ -35,6 +42,11 @@ export class MogContext implements Console {
     this.configuration = new Configuration(thothConfigObject, this);
     this.originalConsole = originalConsole;
 
+    // This can be useful when piping to a stream
+    if (this.configuration.forceColor) {
+      process.env.FORCE_COLOR = "3";
+    }
+
     this.DOM = DOM.singleton(this.configuration);
   }
 
@@ -53,11 +65,20 @@ export class MogContext implements Console {
     return this;
   }
 
+  public get pipe() {
+    return this.DOM.pipe;
+  }
+
+  public createPipe(middleware: PipeMiddleware) {
+    return this.DOM.createPipe(middleware);
+  }
+
   // =================================================
   // Logging + PowerLogging methods for each type
   // ===============-----------
 
   // .log
+
   log(...args: any[]): MogLog {
     return this.DOM.log("log", ...args);
   }
@@ -75,6 +96,7 @@ export class MogContext implements Console {
   }
 
   // .info
+
   info(...args: any[]): MogLog {
     return this.DOM.log("info", ...args);
   }
@@ -92,6 +114,7 @@ export class MogContext implements Console {
   }
 
   // .warn
+
   warn(...args: any[]): MogLog {
     return this.DOM.log("warn", ...args);
   }
@@ -109,6 +132,7 @@ export class MogContext implements Console {
   }
 
   // .error
+
   error(...args: any[]): MogLog {
     return this.DOM.log("error", ...args);
   }
@@ -126,6 +150,7 @@ export class MogContext implements Console {
   }
 
   // .debug
+
   debug(...args: any[]): MogLog {
     return this.DOM.log("debug", ...args);
   }
